@@ -52,7 +52,9 @@ export function Arrive({ enter, children, origin = "bottom left", rise = 10, sca
   const fade = clamp01(enter * 1.6);
   return (
     <div data-chat-row={id} style={{ display: "grid", gridTemplateRows: settled ? "auto" : `${Math.max(0, enter)}fr`, flexShrink: 0 }}>
-      <div style={{ minHeight: 0, overflow: settled ? "visible" : "clip", overflowClipMargin: settled ? undefined : 24 }}>
+      {/* Not clipped: while the slot grows the row overhangs it, so at the bottom of a full thread it
+          rises from behind the composer, the way the native lists push a new message in. */}
+      <div style={{ minHeight: 0 }}>
         <div style={settled ? undefined : {
           opacity: fade,
           transform: `translateY(${(1 - enter) * rise}px) scale(${scale + (1 - scale) * enter})`,

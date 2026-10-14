@@ -45,6 +45,20 @@ Use one recognizable company/contact name in the header; do not combine company 
 
 Contact supports `name`, optional `initials`, and optional `photo` for a local PNG/JPEG/GIF/WebP under `/demo-assets/`. Use a padded, square logo asset for profile pictures; the iOS conversation header uses the existing native photo support. Preflight verifies the asset exists. The current flow has no conversation-wallpaper or outer-presentation-background field. Keep prepared branding assets separate from claims that they were applied. Do not inject CSS/DOM overrides or new schema keys.
 
+### Channels: SMS, WhatsApp, Telegram, Slack
+
+The optional root `channel` field picks the messaging app the conversation wears: `imessage` (default), `sms`, `whatsapp`, `telegram`, or `slack`. The same flow and timeline drive every channel; `npm run demo -- capabilities --json` lists each channel's support under `channels`.
+
+| Channel | Renderer | Platform / screen | Draws | Rejected (`UNSUPPORTED_FOR_CHANNEL`) |
+| --- | --- | --- | --- | --- |
+| `imessage` | pinned Messages UI | ios, macos | everything in `supported` | — |
+| `sms` | pinned Messages UI, green bubbles | ios, macos | as iMessage; messages without `service` compile as `sms` | — |
+| `whatsapp` | repository-owned chat renderer | ios, `conversation` | text, link previews, images, video, files, voice notes, replies, reactions, sent/delivered/read ticks, typing, composer drafts, group sender names | `app-card`, `poll`, `facetime`, `sticker`, `system`, bubble `effect`, overlays, screen effects, sheet apps, navigation/scroll/notice/time-reveal events, `conversations` |
+| `telegram` | repository-owned chat renderer | ios, `conversation` | same as WhatsApp (one check sent, two checks read) | same as WhatsApp |
+| `slack` | repository-owned chat renderer | ios, `conversation` | same content without receipts; the contact is the app (APP badge), `participants` with `me: true` names the teammate | same as WhatsApp |
+
+For WhatsApp, Telegram and Slack, the customer/teammate is still outgoing and the agent is incoming. Use the contact `photo` for the agent's avatar (a padded square logo), progressive `draft` events, typing on/off pairs, and `status` events (`delivered` after send, `read` when the agent starts typing); outgoing messages without a status read as delivered, then read once the agent types or replies. Reactions are single `reaction` events — no long-press overlay phases, which are iMessage-only. Classic tapback types map to ❤️ 👍 👎 😂 ‼️ ❓; use `custom` with `emoji` for anything else. The checked-in examples are `scenarios/channel-<whatsapp|telegram|slack>-<light|dark>.json` (`/?flow=channel-whatsapp-light`). Any scenario can be viewed in another channel with the preview's Channel switcher or `?channel=whatsapp`; that view does not validate the flow for that channel, so validate a real channel flow before handing it off.
+
 ### Video (iOS)
 
 Use the repository-owned `video` kind with a local MP4/WebM `video.src`, optional raster `video.poster`, and actual `video.width`/`height`; see [the video contract](../../../docs/ios-video.md). Videos automatically play muted inline as their message arrives during conversation playback. Pause holds them with the timeline; seek and Replay restore the corresponding media time. Do not add a visible “Play video” footer, elapsed-time label, scrubber, mute button, or other browser media controls or require a second click. Use real supplied/official clips, preserve aspect ratio, and record any excerpt/transcode with provenance. An attachment, poster, or animated image is not a substitute for playable video. Verify decoded motion in the browser; an inspected poster alone is insufficient.
