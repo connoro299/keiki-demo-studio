@@ -1,0 +1,569 @@
+{
+  "id": "channel-whatsapp-dark",
+  "title": "Osteria Nove books a table (WhatsApp, dark)",
+  "platform": "ios",
+  "channel": "whatsapp",
+  "theme": "dark",
+  "contact": {
+    "name": "Osteria Nove",
+    "initials": "ON",
+    "photo": "/demo-assets/channels/osteria-nove-logo.png"
+  },
+  "nowMs": 1791970860000,
+  "startAtMs": 1791970790000,
+  "draft": "",
+  "typing": false,
+  "screen": "conversation",
+  "checkpoints": [
+    {
+      "id": "opening",
+      "atMs": 0
+    },
+    {
+      "id": "typing-first",
+      "atMs": 1268
+    },
+    {
+      "id": "agent-typing",
+      "atMs": 4138
+    },
+    {
+      "id": "booking-link",
+      "atMs": 12260
+    },
+    {
+      "id": "loved",
+      "atMs": 15252
+    },
+    {
+      "id": "reply-quote",
+      "atMs": 20984
+    },
+    {
+      "id": "settled-end",
+      "atMs": 26110
+    }
+  ],
+  "messages": [
+    {
+      "id": "ask",
+      "text": "Hi! Do you have a table for 4 tonight, around 8?",
+      "direction": "outgoing",
+      "atMs": 1791970792356
+    },
+    {
+      "id": "options",
+      "text": "Ciao! 👋 Tonight we have 7:45 inside or 8:30 on the terrace for 4. Which would you like?",
+      "direction": "incoming",
+      "atMs": 1791970795064
+    },
+    {
+      "id": "pick",
+      "text": "8:30 on the terrace please 🙌",
+      "direction": "outgoing",
+      "atMs": 1791970799112
+    },
+    {
+      "id": "booked",
+      "text": "You're all set — table for 4 at 8:30 PM on the terrace. osterianove.com/r/QX7F",
+      "kind": "link",
+      "link": {
+        "url": "https://osterianove.com/r/QX7F",
+        "title": "Your table is confirmed · Osteria Nove",
+        "host": "osterianove.com",
+        "image": "/demo-assets/channels/osteria-nove-reservation.png"
+      },
+      "direction": "incoming",
+      "atMs": 1791970801660
+    },
+    {
+      "id": "cake",
+      "text": "Perfect. Can we bring a cake? It's my mom's birthday 🎂",
+      "direction": "outgoing",
+      "atMs": 1791970807500
+    },
+    {
+      "id": "candles",
+      "text": "Of course! We'll keep it chilled and bring it out with candles at dessert. Happy birthday to her 🎉",
+      "replyTo": "cake",
+      "direction": "incoming",
+      "atMs": 1791970810384
+    },
+    {
+      "id": "thanks",
+      "text": "Grazie! 🙏",
+      "direction": "outgoing",
+      "atMs": 1791970814110
+    }
+  ],
+  "events": [
+    {
+      "type": "draft",
+      "atMs": 1791970790500,
+      "value": "Hi"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970790564,
+      "value": "Hi! "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970790628,
+      "value": "Hi! Do"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970790692,
+      "value": "Hi! Do y"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970790756,
+      "value": "Hi! Do you"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970790820,
+      "value": "Hi! Do you h"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970790884,
+      "value": "Hi! Do you hav"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970790948,
+      "value": "Hi! Do you have "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791012,
+      "value": "Hi! Do you have a "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791076,
+      "value": "Hi! Do you have a ta"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791140,
+      "value": "Hi! Do you have a tabl"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791204,
+      "value": "Hi! Do you have a table "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791268,
+      "value": "Hi! Do you have a table fo"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791332,
+      "value": "Hi! Do you have a table for "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791396,
+      "value": "Hi! Do you have a table for 4 "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791460,
+      "value": "Hi! Do you have a table for 4 to"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791524,
+      "value": "Hi! Do you have a table for 4 toni"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791588,
+      "value": "Hi! Do you have a table for 4 tonigh"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791652,
+      "value": "Hi! Do you have a table for 4 tonight,"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791716,
+      "value": "Hi! Do you have a table for 4 tonight, a"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791780,
+      "value": "Hi! Do you have a table for 4 tonight, aro"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791844,
+      "value": "Hi! Do you have a table for 4 tonight, aroun"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791908,
+      "value": "Hi! Do you have a table for 4 tonight, around "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791972,
+      "value": "Hi! Do you have a table for 4 tonight, around 8?"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970792356,
+      "value": ""
+    },
+    {
+      "type": "status",
+      "atMs": 1791970792736,
+      "messageId": "ask",
+      "status": "delivered"
+    },
+    {
+      "type": "typing",
+      "atMs": 1791970793006,
+      "typing": true
+    },
+    {
+      "type": "status",
+      "atMs": 1791970793006,
+      "messageId": "ask",
+      "status": "read"
+    },
+    {
+      "type": "typing",
+      "atMs": 1791970795064,
+      "typing": false
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970797896,
+      "value": "8:"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970797960,
+      "value": "8:30"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970798024,
+      "value": "8:30 o"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970798088,
+      "value": "8:30 on "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970798152,
+      "value": "8:30 on th"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970798216,
+      "value": "8:30 on the "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970798280,
+      "value": "8:30 on the te"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970798344,
+      "value": "8:30 on the terr"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970798408,
+      "value": "8:30 on the terrac"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970798472,
+      "value": "8:30 on the terrace "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970798536,
+      "value": "8:30 on the terrace pl"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970798600,
+      "value": "8:30 on the terrace plea"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970798664,
+      "value": "8:30 on the terrace please"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970798728,
+      "value": "8:30 on the terrace please 🙌"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970799112,
+      "value": ""
+    },
+    {
+      "type": "status",
+      "atMs": 1791970799492,
+      "messageId": "pick",
+      "status": "delivered"
+    },
+    {
+      "type": "typing",
+      "atMs": 1791970799762,
+      "typing": true
+    },
+    {
+      "type": "status",
+      "atMs": 1791970799762,
+      "messageId": "pick",
+      "status": "read"
+    },
+    {
+      "type": "typing",
+      "atMs": 1791970801660,
+      "typing": false
+    },
+    {
+      "type": "reaction",
+      "atMs": 1791970804752,
+      "messageId": "booked",
+      "reactionId": "booked-me",
+      "reaction": {
+        "type": "love",
+        "byMe": true
+      }
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970805452,
+      "value": "Pe"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970805516,
+      "value": "Perf"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970805580,
+      "value": "Perfec"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970805644,
+      "value": "Perfect."
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970805708,
+      "value": "Perfect. C"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970805772,
+      "value": "Perfect. Can"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970805836,
+      "value": "Perfect. Can w"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970805900,
+      "value": "Perfect. Can we "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970805964,
+      "value": "Perfect. Can we br"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970806028,
+      "value": "Perfect. Can we brin"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970806092,
+      "value": "Perfect. Can we bring "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970806156,
+      "value": "Perfect. Can we bring a "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970806220,
+      "value": "Perfect. Can we bring a ca"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970806284,
+      "value": "Perfect. Can we bring a cake"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970806348,
+      "value": "Perfect. Can we bring a cake? "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970806412,
+      "value": "Perfect. Can we bring a cake? It"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970806476,
+      "value": "Perfect. Can we bring a cake? It's"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970806540,
+      "value": "Perfect. Can we bring a cake? It's m"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970806604,
+      "value": "Perfect. Can we bring a cake? It's my "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970806668,
+      "value": "Perfect. Can we bring a cake? It's my mo"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970806732,
+      "value": "Perfect. Can we bring a cake? It's my mom'"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970806796,
+      "value": "Perfect. Can we bring a cake? It's my mom's "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970806860,
+      "value": "Perfect. Can we bring a cake? It's my mom's bi"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970806924,
+      "value": "Perfect. Can we bring a cake? It's my mom's birt"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970806988,
+      "value": "Perfect. Can we bring a cake? It's my mom's birthd"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970807052,
+      "value": "Perfect. Can we bring a cake? It's my mom's birthday"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970807116,
+      "value": "Perfect. Can we bring a cake? It's my mom's birthday 🎂"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970807500,
+      "value": ""
+    },
+    {
+      "type": "status",
+      "atMs": 1791970807880,
+      "messageId": "cake",
+      "status": "delivered"
+    },
+    {
+      "type": "typing",
+      "atMs": 1791970808150,
+      "typing": true
+    },
+    {
+      "type": "status",
+      "atMs": 1791970808150,
+      "messageId": "cake",
+      "status": "read"
+    },
+    {
+      "type": "typing",
+      "atMs": 1791970810384,
+      "typing": false
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970813470,
+      "value": "Gr"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970813534,
+      "value": "Graz"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970813598,
+      "value": "Grazie"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970813662,
+      "value": "Grazie! "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970813726,
+      "value": "Grazie! 🙏"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970814110,
+      "value": ""
+    },
+    {
+      "type": "status",
+      "atMs": 1791970814490,
+      "messageId": "thanks",
+      "status": "delivered"
+    },
+    {
+      "type": "status",
+      "atMs": 1791970814960,
+      "messageId": "thanks",
+      "status": "read"
+    },
+    {
+      "type": "reaction",
+      "atMs": 1791970815210,
+      "messageId": "thanks",
+      "reactionId": "thanks-them",
+      "reaction": {
+        "type": "love",
+        "byMe": false
+      }
+    }
+  ]
+}

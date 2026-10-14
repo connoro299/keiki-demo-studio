@@ -286,6 +286,7 @@ function validateFlow(input: Record<string, unknown>): { issues: ValidationIssue
   const derived: CompiledEvent[] = [];
   const messages = readMessages(input, issues, typeof id === "string" ? id : undefined, platform, derived);
   const events = readTimeline(input, issues, platform);
+  if (channel && CHAT_RENDERER_CHANNELS.has(channel)) issues.push(...chatChannelIssues(input, channel, screen));
 
   for (const key of Object.keys(input)) {
     if (ROOT_FIELDS.has(key)) continue;
@@ -322,6 +323,53 @@ function validateFlow(input: Record<string, unknown>): { issues: ValidationIssue
   if (timeline.length > 0) demo.events = timeline;
   auditPollVoters(demo, issues);
   return { issues, demo };
+}
+
+/** Channels drawn by the repository-owned chat renderers (src/renderers/chat). */
+const CHAT_RENDERER_CHANNELS = new Set<DemoChannel>(["whatsapp", "telegram", "slack"]);
+const CHANNEL_LABELS: Record<string, string> = { whatsapp: "WhatsApp", telegram: "Telegram", slack: "Slack" };
+/** Message kinds that only exist in the Messages UI. */
+const MESSAGES_ONLY_KINDS = new Set(["app-card", "poll", "facetime", "sticker", "system"]);
+/** Message payload fields that only the Messages UI can show. */
+const MESSAGES_ONLY_FIELDS = ["effect", "appCard", "poll", "facetime", "sticker", "stickers", "system", "revealed"] as const;
+/** Timeline events the chat renderers cannot show: iOS overlays, effects, navigation, sheets, polls, stickers. */
+const MESSAGES_ONLY_EVENTS = new Set([
+  "overlay", "screen-effect", "screen", "select-conversation", "sheet-app", "poll-option", "poll-vote",
+  "sticker", "notice", "time-reveal", "reveal", "scroll", "window-active",
+]);
+
+/**
+ * WhatsApp, Telegram and Slack demos render one iPhone conversation with text, links, images,
+ * files, voice notes, video, reactions, replies, receipts, typing and drafts. Everything else is
+ * reported as UNSUPPORTED_FOR_CHANNEL instead of being silently dropped.
+ */
+function chatChannelIssues(input: Record<string, unknown>, channel: DemoChannel, screen: IosScreenName | undefined): ValidationIssue[] {
+  const label = CHANNEL_LABELS[channel] ?? channel;
+  const issues: ValidationIssue[] = [];
+  const unsupported = (path: string, what: string) => issues.push(issue(path, "UNSUPPORTED_FOR_CHANNEL", `${what} is not available in ${label} demos`));
+  if (screen && screen !== "conversation") unsupported(pointer(["screen"]), `screen "${screen}"`);
+  for (const key of ["conversations", "selectedConversationId"] as const) {
+    if (Object.hasOwn(input, key)) unsupported(pointer([key]), `${key} (a Messages conversation list)`);
+  }
+  const auditMessage = (message: unknown, base: Array<string | number>) => {
+    if (!isPlainObject(message)) return;
+    if (typeof message.kind === "string" && MESSAGES_ONLY_KINDS.has(message.kind)) unsupported(pointer([...base, "kind"]), `message kind "${message.kind}"`);
+    for (const field of MESSAGES_ONLY_FIELDS) {
+      if (Object.hasOwn(message, field)) unsupported(pointer([...base, field]), field === "effect" ? "a bubble effect" : `the iMessage ${field} field`);
+    }
+  };
+  if (Array.isArray(input.messages)) input.messages.forEach((message, index) => auditMessage(message, ["messages", index]));
+  if (Array.isArray(input.events)) {
+    input.events.forEach((event, index) => {
+      if (!isPlainObject(event) || typeof event.type !== "string") return;
+      if (MESSAGES_ONLY_EVENTS.has(event.type)) {
+        const detail = event.type === "overlay" && isPlainObject(event.overlay) && typeof event.overlay.kind === "string" ? ` (${event.overlay.kind})` : "";
+        unsupported(pointer(["events", index, "type"]), `the ${event.type} event${detail}`);
+      }
+      if (event.type === "message") auditMessage(event.message, ["events", index, "message"]);
+    });
+  }
+  return issues;
 }
 
 function auditPollVoters(demo: DemoFlow, issues: ValidationIssue[]): void {

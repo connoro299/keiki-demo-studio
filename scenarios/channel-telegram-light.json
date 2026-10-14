@@ -1,0 +1,535 @@
+{
+  "id": "channel-telegram-light",
+  "title": "Lumen Coffee order status (Telegram, light)",
+  "platform": "ios",
+  "channel": "telegram",
+  "theme": "light",
+  "contact": {
+    "name": "Lumen Coffee",
+    "initials": "LC",
+    "photo": "/demo-assets/channels/lumen-coffee-logo.png"
+  },
+  "nowMs": 1791970860000,
+  "startAtMs": 1791970790000,
+  "draft": "",
+  "typing": false,
+  "screen": "conversation",
+  "checkpoints": [
+    {
+      "id": "opening",
+      "atMs": 0
+    },
+    {
+      "id": "typing-first",
+      "atMs": 1012
+    },
+    {
+      "id": "agent-typing",
+      "atMs": 3380
+    },
+    {
+      "id": "tracking-link",
+      "atMs": 8244
+    },
+    {
+      "id": "reply-quote",
+      "atMs": 16544
+    },
+    {
+      "id": "reacted",
+      "atMs": 19534
+    },
+    {
+      "id": "settled-end",
+      "atMs": 26030
+    }
+  ],
+  "messages": [
+    {
+      "id": "where",
+      "text": "Hey! Where's my order? LC-20418",
+      "direction": "outgoing",
+      "atMs": 1791970791844
+    },
+    {
+      "id": "shipped",
+      "text": "Hi Maya! Your 2 × Ethiopia Guji (250 g) shipped yesterday 📦",
+      "direction": "incoming",
+      "atMs": 1791970794104
+    },
+    {
+      "id": "track",
+      "text": "It's out for delivery and arriving today between 2–4 PM. Track it here: lumen.coffee/t/20418",
+      "kind": "link",
+      "link": {
+        "url": "https://lumen.coffee/t/20418",
+        "title": "Out for delivery · Order LC-20418",
+        "host": "lumen.coffee",
+        "image": "/demo-assets/channels/lumen-tracking.png"
+      },
+      "direction": "incoming",
+      "atMs": 1791970797644
+    },
+    {
+      "id": "concierge",
+      "text": "Amazing. Can they leave it with the concierge? I'm in meetings all afternoon",
+      "direction": "outgoing",
+      "atMs": 1791970803284
+    },
+    {
+      "id": "note",
+      "text": "Done ✅ I added a note for the courier: leave it with the concierge at the front desk.",
+      "replyTo": "concierge",
+      "direction": "incoming",
+      "atMs": 1791970805944
+    },
+    {
+      "id": "receipt",
+      "text": "Here's your receipt too.",
+      "kind": "attachment",
+      "attachments": [
+        {
+          "name": "Receipt-LC-20418.pdf",
+          "size": "84 KB"
+        }
+      ],
+      "direction": "incoming",
+      "atMs": 1791970811134
+    },
+    {
+      "id": "best",
+      "text": "You're the best ☕️",
+      "direction": "outgoing",
+      "atMs": 1791970814030
+    }
+  ],
+  "events": [
+    {
+      "type": "draft",
+      "atMs": 1791970790500,
+      "value": "He"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970790564,
+      "value": "Hey!"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970790628,
+      "value": "Hey! W"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970790692,
+      "value": "Hey! Whe"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970790756,
+      "value": "Hey! Where"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970790820,
+      "value": "Hey! Where's"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970790884,
+      "value": "Hey! Where's m"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970790948,
+      "value": "Hey! Where's my "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791012,
+      "value": "Hey! Where's my or"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791076,
+      "value": "Hey! Where's my orde"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791140,
+      "value": "Hey! Where's my order?"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791204,
+      "value": "Hey! Where's my order? L"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791268,
+      "value": "Hey! Where's my order? LC-"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791332,
+      "value": "Hey! Where's my order? LC-20"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791396,
+      "value": "Hey! Where's my order? LC-2041"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791460,
+      "value": "Hey! Where's my order? LC-20418"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791844,
+      "value": ""
+    },
+    {
+      "type": "status",
+      "atMs": 1791970792224,
+      "messageId": "where",
+      "status": "delivered"
+    },
+    {
+      "type": "typing",
+      "atMs": 1791970792494,
+      "typing": true
+    },
+    {
+      "type": "status",
+      "atMs": 1791970792494,
+      "messageId": "where",
+      "status": "read"
+    },
+    {
+      "type": "typing",
+      "atMs": 1791970794104,
+      "typing": false
+    },
+    {
+      "type": "typing",
+      "atMs": 1791970796144,
+      "typing": true
+    },
+    {
+      "type": "typing",
+      "atMs": 1791970797644,
+      "typing": false
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970800532,
+      "value": "Am"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970800596,
+      "value": "Amaz"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970800660,
+      "value": "Amazin"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970800724,
+      "value": "Amazing."
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970800788,
+      "value": "Amazing. C"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970800852,
+      "value": "Amazing. Can"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970800916,
+      "value": "Amazing. Can t"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970800980,
+      "value": "Amazing. Can the"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970801044,
+      "value": "Amazing. Can they "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970801108,
+      "value": "Amazing. Can they le"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970801172,
+      "value": "Amazing. Can they leav"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970801236,
+      "value": "Amazing. Can they leave "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970801300,
+      "value": "Amazing. Can they leave it"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970801364,
+      "value": "Amazing. Can they leave it w"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970801428,
+      "value": "Amazing. Can they leave it wit"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970801492,
+      "value": "Amazing. Can they leave it with "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970801556,
+      "value": "Amazing. Can they leave it with th"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970801620,
+      "value": "Amazing. Can they leave it with the "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970801684,
+      "value": "Amazing. Can they leave it with the co"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970801748,
+      "value": "Amazing. Can they leave it with the conc"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970801812,
+      "value": "Amazing. Can they leave it with the concie"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970801876,
+      "value": "Amazing. Can they leave it with the concierg"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970801940,
+      "value": "Amazing. Can they leave it with the concierge?"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970802004,
+      "value": "Amazing. Can they leave it with the concierge? I"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970802068,
+      "value": "Amazing. Can they leave it with the concierge? I'm"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970802132,
+      "value": "Amazing. Can they leave it with the concierge? I'm i"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970802196,
+      "value": "Amazing. Can they leave it with the concierge? I'm in "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970802260,
+      "value": "Amazing. Can they leave it with the concierge? I'm in me"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970802324,
+      "value": "Amazing. Can they leave it with the concierge? I'm in meet"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970802388,
+      "value": "Amazing. Can they leave it with the concierge? I'm in meetin"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970802452,
+      "value": "Amazing. Can they leave it with the concierge? I'm in meetings"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970802516,
+      "value": "Amazing. Can they leave it with the concierge? I'm in meetings a"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970802580,
+      "value": "Amazing. Can they leave it with the concierge? I'm in meetings all"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970802644,
+      "value": "Amazing. Can they leave it with the concierge? I'm in meetings all a"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970802708,
+      "value": "Amazing. Can they leave it with the concierge? I'm in meetings all aft"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970802772,
+      "value": "Amazing. Can they leave it with the concierge? I'm in meetings all after"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970802836,
+      "value": "Amazing. Can they leave it with the concierge? I'm in meetings all afterno"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970802900,
+      "value": "Amazing. Can they leave it with the concierge? I'm in meetings all afternoon"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970803284,
+      "value": ""
+    },
+    {
+      "type": "status",
+      "atMs": 1791970803664,
+      "messageId": "concierge",
+      "status": "delivered"
+    },
+    {
+      "type": "typing",
+      "atMs": 1791970803934,
+      "typing": true
+    },
+    {
+      "type": "status",
+      "atMs": 1791970803934,
+      "messageId": "concierge",
+      "status": "read"
+    },
+    {
+      "type": "typing",
+      "atMs": 1791970805944,
+      "typing": false
+    },
+    {
+      "type": "reaction",
+      "atMs": 1791970809034,
+      "messageId": "note",
+      "reactionId": "note-me",
+      "reaction": {
+        "type": "custom",
+        "byMe": true,
+        "emoji": "🙏"
+      }
+    },
+    {
+      "type": "typing",
+      "atMs": 1791970809934,
+      "typing": true
+    },
+    {
+      "type": "typing",
+      "atMs": 1791970811134,
+      "typing": false
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970813134,
+      "value": "Yo"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970813198,
+      "value": "You'"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970813262,
+      "value": "You're"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970813326,
+      "value": "You're t"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970813390,
+      "value": "You're the"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970813454,
+      "value": "You're the b"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970813518,
+      "value": "You're the bes"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970813582,
+      "value": "You're the best "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970813646,
+      "value": "You're the best ☕️"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970814030,
+      "value": ""
+    },
+    {
+      "type": "status",
+      "atMs": 1791970814410,
+      "messageId": "best",
+      "status": "delivered"
+    },
+    {
+      "type": "status",
+      "atMs": 1791970814880,
+      "messageId": "best",
+      "status": "read"
+    },
+    {
+      "type": "reaction",
+      "atMs": 1791970815130,
+      "messageId": "best",
+      "reactionId": "best-them",
+      "reaction": {
+        "type": "love",
+        "byMe": false
+      }
+    }
+  ]
+}

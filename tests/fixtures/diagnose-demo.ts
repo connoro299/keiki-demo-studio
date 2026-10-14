@@ -5,7 +5,7 @@ import { demoFlowSchema, demoMessageSchema, type ValidationIssue } from "@/contr
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 
-const FLOW_KEYS = ["id", "title", "platform", "theme", "contact", "nowMs", "startAtMs", "draft", "typing", "screen", "messages", "events", "participants", "group", "conversations", "selectedConversationId", "library"] as const;
+const FLOW_KEYS = ["id", "title", "platform", "channel", "theme", "contact", "nowMs", "startAtMs", "draft", "typing", "screen", "messages", "events", "participants", "group", "conversations", "selectedConversationId", "library"] as const;
 const CONTACT_KEYS = ["name", "initials", "photo", "silhouette"] as const;
 const MESSAGE_KEYS = ["id", "text", "direction", "atMs", "kind", "service", "status", "effect", "link", "attachments", "images", "audio", "appCard", "reactions", "replyTo", "edited", "readAt", "revealed", "removed", "sender", "senderId", "senderInitials", "senderPhoto", "conversationId", "system", "facetime", "sticker", "stickers", "poll", "video"] as const;
 const LINK_KEYS = ["url", "title", "host", "image"] as const;
