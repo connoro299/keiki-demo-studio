@@ -1,0 +1,7 @@
+/.claude
+/outreach
+/artifacts
+node_modules
+/test-results
+/dist
+.env.local

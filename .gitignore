@@ -8,3 +8,5 @@ blob-report
 *.tsbuildinfo
 /outreach/
 .env.local
+.vercel
+.env*
