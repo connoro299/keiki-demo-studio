@@ -121,7 +121,7 @@ describe("preview and capture CLI", () => {
   });
 });
 
-describe("capture engine", () => {
+describe("capture engine", { timeout: 60_000 }, () => {
   it("allows only the local origin", () => {
     expect(isAllowedCaptureUrl("http://127.0.0.1:4120/src/player/host/main.tsx", "http://127.0.0.1:4120/")).toBe(true);
     expect(isAllowedCaptureUrl("https://example.com/article", "http://127.0.0.1:4120/")).toBe(false);

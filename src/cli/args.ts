@@ -29,6 +29,7 @@ export type ParsedArgs = {
   gifWidth?: number;
   gifFps?: number;
   crf?: number;
+  maxDurationMs?: number;
   concurrency?: number;
   gpu: boolean;
   dedupe: boolean;
@@ -111,6 +112,7 @@ export function parseArgs(argv: string[]): ParsedArgs {
     gifWidth: parsePositiveInteger(flags["gif-width"], "gif-width"),
     gifFps: parsePositiveInteger(flags["gif-fps"], "gif-fps"),
     crf: parseNumber(flags.crf, "crf"),
+    maxDurationMs: parsePositiveInteger(flags["max-duration-ms"], "max-duration-ms"),
     concurrency: parsePositiveInteger(flags.concurrency, "concurrency"),
     gpu: Boolean(flags.gpu),
     dedupe: !flags.noDedupe,

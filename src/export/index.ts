@@ -10,8 +10,10 @@ export type ExportFormat = "mp4" | "gif" | "poster";
 export const EXPORT_FORMATS: readonly ExportFormat[] = ["mp4", "gif", "poster"];
 
 export type ExportOptions = {
-  /** Directory to write into; created if missing. Must be missing or empty. */
+  /** Directory to write into; created if missing. Existing export files there are replaced. */
   outDir: string;
+  /** Refuse a non-empty outDir (the CLI sets this; capture's "fresh --out per run" rule). Default false. */
+  requireEmptyOutDir?: boolean;
   /** Default ["mp4", "gif", "poster"]. */
   formats?: ExportFormat[];
   /** MP4 frame rate. Default 30. */
@@ -20,6 +22,8 @@ export type ExportOptions = {
   scale?: number;
   /** Hold the final frame this long. Default 1200. */
   tailMs?: number;
+  /** Refuse to render a video longer than this (timeline + tail). Default 600000 (10 minutes). */
+  maxDurationMs?: number;
   /** GIF width in px. Default 480. */
   gifWidth?: number;
   /** GIF frame rate. Default 15. */
@@ -54,14 +58,19 @@ export type ExportedFile = {
   height: number;
 };
 
+/** The original contract: every consumer can rely on these. */
 export type ExportResult = {
   mp4?: string;
   gif?: string;
   poster?: string;
   /** Length of the encoded video: timeline plus tail. */
   durationMs: number;
-  /** Frames encoded into the MP4 (durationMs * fps / 1000). */
+  /** Frames encoded into the video (durationMs * fps / 1000). */
   frames: number;
+} & Partial<ExportDetails>;
+
+/** What `exportVideo` additionally reports (always present on its results). */
+export type ExportDetails = {
   /** Screenshots actually taken; the rest were the held tail or fingerprint-identical repeats. */
   capturedFrames: number;
   /** Compiled timeline length (compiled.durationMs) before the tail. */
@@ -92,3 +101,5 @@ export type ExportResult = {
   };
   warnings: string[];
 };
+
+export type DetailedExportResult = ExportResult & ExportDetails;

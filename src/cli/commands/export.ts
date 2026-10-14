@@ -15,6 +15,7 @@ export async function exportCommand(args: ParsedArgs, deps: CliDeps): Promise<nu
     args.file,
     {
       outDir,
+      requireEmptyOutDir: true,
       formats: args.formats,
       fps: args.fps,
       scale: args.scale,
@@ -22,6 +23,7 @@ export async function exportCommand(args: ParsedArgs, deps: CliDeps): Promise<nu
       gifWidth: args.gifWidth,
       gifFps: args.gifFps,
       crf: args.crf,
+      maxDurationMs: args.maxDurationMs,
       concurrency: args.concurrency,
       gpu: args.gpu,
       dedupe: args.dedupe,

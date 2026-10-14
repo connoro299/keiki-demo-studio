@@ -12,7 +12,7 @@ import { imageSize, sniffImage } from "@/cli/preflight";
 import type { DemoFlow, DemoPlatform, DemoTheme } from "@/contracts";
 import { audioFilterGraph, planAudio } from "@/export/audio";
 import { probeMedia, resolveFfmpeg, runFfmpeg, spawnFfmpeg, type FfmpegProcess, type ResolvedFfmpeg } from "@/export/ffmpeg";
-import { EXPORT_FORMATS, type ExportFormat, type ExportOptions, type ExportResult } from "@/export/index";
+import { EXPORT_FORMATS, type ExportFormat, type DetailedExportResult, type ExportOptions } from "@/export/index";
 
 export const EXPORT_DEFAULTS = {
   formats: ["mp4", "gif", "poster"] as ExportFormat[],
@@ -23,6 +23,7 @@ export const EXPORT_DEFAULTS = {
   gifFps: 15,
   maxGifBytes: 5 * 1024 * 1024,
   crf: 18,
+  maxDurationMs: 10 * 60 * 1000,
 };
 
 /**
@@ -32,7 +33,7 @@ export const EXPORT_DEFAULTS = {
  *
  * `flow` is a path to a flow JSON file or an in-memory DemoFlow (plus optional authoring fields).
  */
-export async function exportVideo(flow: string | DemoFlow, options: ExportOptions): Promise<ExportResult> {
+export async function exportVideo(flow: string | DemoFlow, options: ExportOptions): Promise<DetailedExportResult> {
   const silent = { write() { /* library callers read the result instead */ } };
   const deps = await loadDeps({ io: { stdout: silent, stderr: silent } });
   return exportVideoWithDeps(flow, options, deps);
@@ -64,6 +65,8 @@ export function normalizeExportOptions(options: ExportOptions): Normalized {
   if (!Number.isInteger(gifFps) || gifFps < 1 || gifFps > 50) throw new CliError("--gif-fps must be an integer from 1 to 50", EXIT_USAGE);
   const maxGifBytes = options.maxGifBytes ?? EXPORT_DEFAULTS.maxGifBytes;
   if (!Number.isFinite(maxGifBytes) || maxGifBytes < 0) throw new CliError("maxGifBytes must be non-negative", EXIT_USAGE);
+  const maxDurationMs = options.maxDurationMs ?? EXPORT_DEFAULTS.maxDurationMs;
+  if (!Number.isInteger(maxDurationMs) || maxDurationMs < 1) throw new CliError("--max-duration-ms must be a positive integer", EXIT_USAGE);
   const crf = options.crf ?? EXPORT_DEFAULTS.crf;
   if (!Number.isInteger(crf) || crf < 0 || crf > 51) throw new CliError("--crf must be an integer from 0 to 51", EXIT_USAGE);
   const concurrency = options.concurrency ?? defaultConcurrency();
@@ -79,9 +82,11 @@ export function normalizeExportOptions(options: ExportOptions): Normalized {
     gifFps,
     maxGifBytes,
     crf,
+    maxDurationMs,
     concurrency,
     gpu: options.gpu ?? false,
     dedupe: options.dedupe ?? true,
+    requireEmptyOutDir: options.requireEmptyOutDir ?? false,
     platform: options.platform,
     theme: options.theme,
     port: options.port,
@@ -146,6 +151,14 @@ function gpuArgs(): string[] {
   return process.platform === "darwin"
     ? ["--use-angle=metal", "--enable-gpu-rasterization", "--ignore-gpu-blocklist"]
     : ["--enable-gpu-rasterization", "--ignore-gpu-blocklist"];
+}
+
+function formatClock(ms: number): string {
+  const seconds = Math.round(ms / 1000);
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const rest = seconds % 60;
+  return hours > 0 ? `${hours}h${String(minutes).padStart(2, "0")}m` : `${minutes}m${String(rest).padStart(2, "0")}s`;
 }
 
 /** Exports never overwrite: the output directory must be missing or empty. */
@@ -359,13 +372,15 @@ async function encodeGif(input: {
 }
 
 /** `exportVideo` with explicit CLI dependencies (validator/compiler doubles, repo root, injected preview server). */
-export async function exportVideoWithDeps(flow: string | DemoFlow, rawOptions: ExportOptions, deps: CliDeps): Promise<ExportResult> {
+export async function exportVideoWithDeps(flow: string | DemoFlow, rawOptions: ExportOptions, deps: CliDeps): Promise<DetailedExportResult> {
   const started = performance.now();
   const options = normalizeExportOptions(rawOptions);
-  assertFreshOutDir(options.outDir);
+  if (options.requireEmptyOutDir) assertFreshOutDir(options.outDir);
   const loaded = loadFlow(flow, options, deps);
   const ffmpeg: ResolvedFfmpeg = resolveFfmpeg();
   mkdirSync(options.outDir, { recursive: true });
+  // A re-export into the same directory must not leave an earlier run's failure report behind.
+  rmSync(path.join(options.outDir, "failure.json"), { force: true });
 
   const host = await bootPlayerHost(
     { catalogue: false, port: options.port, file: loaded.file, platform: options.platform, humanRequest: undefined, sheetExperience: undefined },
@@ -397,6 +412,13 @@ export async function exportVideoWithDeps(flow: string | DemoFlow, rawOptions: E
     const masterFps = wantMp4 ? options.fps : gifFps;
     const schedule = frameSchedule(timelineMs, options.tailMs, masterFps);
     const totalMs = timelineMs + options.tailMs;
+    if (totalMs > options.maxDurationMs) {
+      throw new CliError(
+        `Video would be ${formatClock(totalMs)} (timeline ${formatClock(timelineMs)} + tail), over the ${formatClock(options.maxDurationMs)} limit. `
+          + "Message times are playback time: tighten the flow's atMs gaps, or raise --max-duration-ms.",
+        EXIT_USAGE,
+      );
+    }
     const base = path.join(options.outDir, scenarioId);
     const mp4Path = wantMp4 ? `${base}.mp4` : undefined;
     const gifPath = wantGif ? `${base}.gif` : undefined;
@@ -489,7 +511,7 @@ export async function exportVideoWithDeps(flow: string | DemoFlow, rawOptions: E
       gifMs = performance.now() - gifStarted;
     }
 
-    const files: ExportResult["files"] = {};
+    const files: DetailedExportResult["files"] = {};
     if (mp4Path) {
       const probe = await probeMedia(ffmpeg.path, mp4Path);
       files.mp4 = { path: mp4Path, bytes: statSync(mp4Path).size, width: probe.width, height: probe.height, fps: probe.fps, frames: probe.frames, durationMs: probe.durationMs };
@@ -504,7 +526,7 @@ export async function exportVideoWithDeps(flow: string | DemoFlow, rawOptions: E
 
     const totalElapsed = performance.now() - started;
     const manifest = path.join(options.outDir, "manifest.json");
-    const result: ExportResult = {
+    const result: DetailedExportResult = {
       ...(mp4Path ? { mp4: mp4Path } : {}),
       ...(gifPath ? { gif: gifPath } : {}),
       ...(posterPath ? { poster: posterPath } : {}),

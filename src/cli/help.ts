@@ -86,6 +86,7 @@ Options:
   --gif-width <n>      GIF width in px (default 480)
   --gif-fps <n>        GIF frame rate (default 15)
   --crf <n>            x264 quality, lower is larger (default 18)
+  --max-duration-ms <n> Refuse longer videos (default 600000 = 10 min); catches day-long atMs gaps
   --concurrency <n>    Player pages seeking in parallel (default up to 4; frames are per-timestamp)
   --gpu                Hardware GPU raster: faster, but pixels depend on this machine's GPU
   --no-dedupe          Screenshot every frame, even when DOM/scroll/animation state is unchanged
