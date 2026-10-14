@@ -93,6 +93,13 @@ export type XTweet = {
   text: string;
   createdAt?: string;
   metrics?: { likes?: number; replies?: number; reposts?: number; views?: number };
+  /** Additive (X queue): the author's bio, follower count and profile link when the source provides them. */
+  authorBio?: string;
+  authorFollowers?: number;
+  authorUrl?: string;
+  /** Additive (X queue): conversation id and language from the X API. */
+  conversationId?: string;
+  lang?: string;
 };
 
 export type XDraft = {
@@ -106,6 +113,10 @@ export type XDraft = {
   site?: string;
   demo?: DemoAsset;
   reply: string;
+  /** Additive (X queue): two alternative replies the reviewer can swap in for `reply`. */
+  alternatives?: string[];
+  /** Additive (X queue): free-form reviewer notes. */
+  notes?: string;
   status: XDraftStatus;
   /** The search query or source that surfaced it. */
   source: string;
