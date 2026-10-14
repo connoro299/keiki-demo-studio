@@ -1,11 +1,12 @@
 import { validateSheetSpec, type SheetValidationContext } from "@/generator/sheet-request";
-import { APP_CARD_MAX_HEIGHT, APP_CARD_MIN_HEIGHT, miniAppLayoutSchema, appCardPayloadSchema } from "@/contracts";
+import { APP_CARD_MAX_HEIGHT, APP_CARD_MIN_HEIGHT, MESSAGES_CHANNELS, miniAppLayoutSchema, appCardPayloadSchema } from "@/contracts";
 import type {
   AppCardPayload,
   BubbleEffectName,
   CompiledEvent,
   DemoFlow,
   DemoMessage,
+  DemoChannel,
   DemoPlatform,
   DemoTheme,
   Direction,
@@ -35,6 +36,7 @@ const DIRECTIONS = new Set<Direction>(["incoming", "outgoing"]);
 const SERVICES = new Set<Service>(["imessage", "sms"]);
 const STATUSES = new Set<MessageStatus>(["sending", "sent", "delivered", "read", "failed"]);
 const PLATFORMS = new Set<DemoPlatform>(["ios", "macos"]);
+const CHANNELS = new Set<DemoChannel>(["imessage", "sms", "whatsapp", "telegram", "slack"]);
 const THEMES = new Set<DemoTheme>(["light", "dark"]);
 const SCREENS = new Set<IosScreenName>(["list", "conversation", "new-message"]);
 const EFFECTS = new Set<BubbleEffectName>(["slam", "loud", "gentle", "invisible-ink"]);
@@ -59,6 +61,7 @@ const ROOT_FIELDS = new Set([
   "id",
   "title",
   "platform",
+  "channel",
   "theme",
   "contact",
   "nowMs",
@@ -254,6 +257,10 @@ function validateFlow(input: Record<string, unknown>): { issues: ValidationIssue
   const id = readBoundedString(input, "id", pointer(["id"]), issues, false);
   const title = readBoundedString(input, "title", pointer(["title"]), issues, false);
   const platform = readEnum(input, "platform", pointer(["platform"]), issues, PLATFORMS);
+  const channel = Object.hasOwn(input, "channel") ? readEnum(input, "channel", pointer(["channel"]), issues, CHANNELS) : undefined;
+  if (channel && !MESSAGES_CHANNELS.has(channel) && platform === "macos") {
+    issues.push(issue(pointer(["channel"]), "PLATFORM_MISMATCH", `${channel} demos render in an iOS-sized phone frame; use platform "ios"`));
+  }
   const theme = readEnum(input, "theme", pointer(["theme"]), issues, THEMES);
   const contact = readContact(input.contact, Object.hasOwn(input, "contact"), issues);
   const nowMs = readMillis(input, "nowMs", pointer(["nowMs"]), issues, true);
@@ -304,6 +311,7 @@ function validateFlow(input: Record<string, unknown>): { issues: ValidationIssue
 
   const demo: DemoFlow = { id, title, platform, theme, contact, nowMs, draft, typing, screen, messages };
   if (startAtMs !== undefined) demo.startAtMs = startAtMs;
+  if (channel !== undefined) demo.channel = channel;
   const roster = readRoster(input, issues, platform);
   if (roster.participants) demo.participants = roster.participants;
   if (roster.group) demo.group = roster.group;

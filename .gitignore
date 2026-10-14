@@ -6,3 +6,5 @@ playwright-report
 blob-report
 .DS_Store
 *.tsbuildinfo
+outreach
+.env.local

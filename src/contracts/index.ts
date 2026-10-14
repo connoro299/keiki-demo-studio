@@ -19,6 +19,12 @@ export const directionSchema = z.enum(["incoming", "outgoing"]);
 export const serviceSchema = z.enum(["imessage", "sms"]);
 export const statusSchema = z.enum(["sending", "sent", "delivered", "read", "failed"]);
 export const platformSchema = z.enum(["ios", "macos"]);
+/**
+ * The messaging app a demo wears. `imessage` (default) and `sms` use the pinned Messages UI; the
+ * others use repository-owned chat renderers that read the same compiled timeline. Non-Messages
+ * channels are iOS-sized phone frames only.
+ */
+export const channelSchema = z.enum(["imessage", "sms", "whatsapp", "telegram", "slack"]);
 export const themeSchema = z.enum(["light", "dark"]);
 export const iosScreenSchema = z.enum(["list", "conversation", "new-message"]);
 export const bubbleEffectSchema = z.enum(["slam", "loud", "gentle", "invisible-ink"]);
@@ -29,6 +35,8 @@ export type Direction = z.infer<typeof directionSchema>;
 export type Service = z.infer<typeof serviceSchema>;
 export type MessageStatus = z.infer<typeof statusSchema>;
 export type DemoPlatform = z.infer<typeof platformSchema>;
+export type DemoChannel = z.infer<typeof channelSchema>;
+export const MESSAGES_CHANNELS: ReadonlySet<DemoChannel> = new Set(["imessage", "sms"]);
 export type DemoTheme = z.infer<typeof themeSchema>;
 export type IosScreenName = z.infer<typeof iosScreenSchema>;
 export type BubbleEffectName = z.infer<typeof bubbleEffectSchema>;
@@ -446,6 +454,7 @@ export const demoFlowSchema = z.object({
   id: z.string().min(1),
   title: z.string().min(1),
   platform: platformSchema,
+  channel: channelSchema.optional(),
   theme: themeSchema,
   contact: contactSchema,
   nowMs: z.number().int(),
@@ -598,6 +607,8 @@ export type DemoFlow = {
   id: string;
   title: string;
   platform: DemoPlatform;
+  /** Omitted means imessage. */
+  channel?: DemoChannel;
   theme: DemoTheme;
   contact: DemoContact;
   nowMs: number;
@@ -621,6 +632,7 @@ export type ValidationResult = { ok: true; demo: DemoFlow } | { ok: false; issue
 export type CompiledDemo = {
   id: string;
   platform: DemoPlatform;
+  channel?: DemoChannel;
   theme: DemoTheme;
   durationMs: number;
   contact: DemoFlow["contact"];

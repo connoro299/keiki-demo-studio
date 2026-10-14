@@ -10,7 +10,9 @@
     "test:unit": "vitest run",
     "test:e2e": "playwright test",
     "verify:upstream": "tsx scripts/check-upstream.ts",
-    "demo": "tsx src/cli/main.ts"
+    "demo": "tsx src/cli/main.ts",
+    "outreach": "tsx --env-file-if-exists=.env.local src/outreach/cli.ts",
+    "x": "tsx --env-file-if-exists=.env.local src/outreach/x/cli.ts"
   },
   "dependencies": {
     "clsx": "2.1.1",

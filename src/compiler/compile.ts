@@ -223,6 +223,7 @@ export function compileDemo(demo: DemoFlow, context?: SheetValidationContext): C
   return {
     id: demo.id,
     platform: demo.platform,
+    ...(demo.channel ? { channel: demo.channel } : {}),
     theme: demo.theme,
     durationMs,
     contact: copyContact(demo.contact),
