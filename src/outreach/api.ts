@@ -187,13 +187,10 @@ async function addLeads(urls: unknown, root: string, getPipeline: () => Promise<
   } catch {
     pipeline = null;
   }
-  if (pipeline?.addLeads) {
-    // The pipeline owns lead creation (and may read extra columns); hand it the plain URLs.
-    const result = await pipeline.addLeads(normalized);
-    const leads = (Array.isArray(result) ? result : [])
-      .map((entry) => (typeof entry === "string" ? readLead(entry, root) : (entry as Lead)))
-      .filter((lead): lead is Lead => Boolean(lead?.id));
-    return { leads: leads.length ? leads : normalized.map((url) => readLead(leadIdFor(url), root)).filter((l): l is Lead => Boolean(l)), via: "pipeline", invalid };
+  if (pipeline) {
+    // The pipeline owns lead creation; existing sites come back unchanged (adding is idempotent).
+    const result = pipeline.addLeads(normalized, { root });
+    return { leads: [...result.added, ...result.existing], via: "pipeline", invalid: [...invalid, ...result.invalid.map((entry) => entry.input)] };
   }
 
   const now = new Date().toISOString();

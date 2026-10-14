@@ -334,6 +334,13 @@ textarea.ox-input { resize: vertical; }
 
 .ox-callout { margin-top: 20px; padding: 12px 14px; border-radius: var(--radius-sm); background: var(--sunken); color: var(--text-2); font-size: 13px; }
 .ox-callout-error { background: var(--bad-bg); color: var(--bad); }
+.ox-callout-cmd { margin-top: 6px; color: var(--text-2); font-size: 12px; }
+.ox-callout-cmd code { font-family: var(--mono); color: var(--text); }
+.ox-demo-error { color: var(--bad); }
+.ox-variants { display: grid; gap: 10px; margin-top: 16px; }
+.ox-variant { padding: 10px 12px 12px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--sunken); }
+.ox-variant-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.ox-variant-text { font-size: 13px; color: var(--text); line-height: 1.55; white-space: pre-wrap; }
 
 .ox-section { margin-top: 28px; }
 .ox-section-title { font-size: 12px; font-weight: 600; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 12px; }

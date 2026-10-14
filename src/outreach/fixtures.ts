@@ -96,6 +96,10 @@ export function fixtureLeads(root: string, now = Date.now()): Lead[] {
         to: harborContacts[0],
         subject: "Saturday fades, booked by text",
         body: "Hi Marco,\n\nI saw on your site that most Harbor bookings come in by text and DM. I built a short demo of an agent answering those for you: a regular asks for a Saturday fade, it offers Marco's open slots, books 9:30 and sends the Friday reminder. Video's attached.\n\nIt works over iMessage and SMS from your existing number, and hands anything unusual straight to you. Happy to set one up for the shop if it's useful.\n\nConnor\nKeiki",
+        variants: {
+          form: "Hi Marco, I made a short demo of an agent answering Harbor's booking texts: it offers Marco's open Saturday slots, books 9:30 and sends a Friday reminder, over iMessage or SMS from your current number. Happy to send the video or set one up for the shop. Connor, Keiki",
+          xDm: "hey Marco, made a quick demo of an agent answering the \"anything saturday?\" texts for Harbor and booking them in. want me to send it over?",
+        },
       },
     },
     {
@@ -154,7 +158,7 @@ export function fixtureLeads(root: string, now = Date.now()): Lead[] {
     },
     { ...base("tidepoolyoga-com-1c2d3e", "https://tidepoolyoga.com", "rendering", 1), demos: [] },
     { ...base("brickandmortar-shop-7f8e9d", "https://brickandmortar.shop", "queued", 0.2), demos: [] },
-    { ...base("oldtownlocksmith-com-4b5a6c", "https://oldtownlocksmith.com", "failed", 9), error: "site returned 403 to the fetcher (Cloudflare challenge)", demos: [] },
+    { ...base("oldtownlocksmith-com-4b5a6c", "https://oldtownlocksmith.com", "failed", 9), error: "site returned 403 to the fetcher (Cloudflare challenge)", failedStep: "analyze", demos: [] },
   ];
 }
 

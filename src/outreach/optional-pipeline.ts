@@ -1,21 +1,15 @@
 import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import type { DemoAsset, Lead } from "./types";
+import type { DemoAsset } from "./types";
 
 /**
- * The website→demo pipeline ("@/outreach/pipeline") ships on its own branch. Everything here that
- * wants it loads it lazily and degrades to "demo generation unavailable" when it is not present, so
- * the X queue and the dashboard work without it.
+ * The website→demo pipeline (src/outreach/pipeline.ts) pulls in site fetching, extraction and the
+ * demo generator. The X queue and the dashboard API load it lazily, only when they need it, and
+ * report "demo generation unavailable" instead of crashing if it cannot be loaded.
  */
-export type PipelineModule = {
-  analyzeSite?: (url: string, ...rest: unknown[]) => Promise<unknown>;
-  generateDemos?: (...args: unknown[]) => Promise<unknown>;
-  processLead?: (lead: Lead | string, ...rest: unknown[]) => Promise<Lead | void> | Lead | void;
-  addLeads?: (urls: string[], ...rest: unknown[]) => Promise<unknown> | unknown;
-  runQueue?: (...args: unknown[]) => Promise<unknown>;
-};
+export type PipelineModule = Pick<typeof import("./pipeline"), "addLeads" | "processLead">;
 
-export const PIPELINE_UNAVAILABLE = "demo generation unavailable: the outreach pipeline (src/outreach/pipeline.ts) is not installed on this branch";
+export const PIPELINE_UNAVAILABLE = "demo generation unavailable: the outreach pipeline (src/outreach/pipeline.ts) could not be loaded";
 
 export function pipelineInstalled(): boolean {
   try {
@@ -36,12 +30,10 @@ export function pipelineCliInstalled(): boolean {
 
 export async function loadPipeline(): Promise<PipelineModule | null> {
   if (!pipelineInstalled()) return null;
-  // A variable specifier keeps bundlers and tsc from requiring the module at build time.
-  const specifier = "./pipeline";
   try {
-    return (await import(/* @vite-ignore */ specifier)) as PipelineModule;
+    return await import("./pipeline");
   } catch (error) {
-    throw new Error(`the outreach pipeline failed to load: ${(error as Error).message}`);
+    throw new Error(`${PIPELINE_UNAVAILABLE}: ${(error as Error).message}`);
   }
 }
 

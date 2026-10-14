@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
-import { listXDrafts, outreachRoot, readLead, writeXDraft, leadIdFor } from "../store";
-import type { DemoAsset, Lead, XDraft, XTweet } from "../types";
+import { listXDrafts, outreachRoot, writeXDraft } from "../store";
+import type { DemoAsset, XDraft, XTweet } from "../types";
 import { PIPELINE_UNAVAILABLE, bestDemo, loadPipeline, type PipelineModule } from "../optional-pipeline";
 import { LlmUnavailableError, isLlmUnavailable } from "./llm-check";
 import { queriesFor, withOperators, type PresetName } from "./presets";
@@ -116,17 +116,17 @@ export function attachDemo(draft: XDraft, demo: DemoAsset, demoReply?: string): 
   return { ...draft, demo, reply: demoReply, alternatives };
 }
 
-/** Analyze + generate + export a demo for a site through the outreach pipeline. */
+/** Analyze + generate + export a demo for a site through the outreach pipeline (same lead store). */
 export async function demoForSite(site: string, deps: QueueDeps): Promise<DemoAsset> {
   const pipeline = await (deps.loadPipeline ?? loadPipeline)();
-  if (!pipeline?.addLeads || !pipeline.processLead) throw new Error(PIPELINE_UNAVAILABLE);
-  const added = await pipeline.addLeads([site]);
-  const first = Array.isArray(added) ? (added[0] as Lead | string | undefined) : undefined;
-  const leadId = typeof first === "string" ? first : first?.id ?? leadIdFor(site);
-  const lead = (typeof first === "object" && first) || readLead(leadId, deps.root) || leadId;
-  const processed = (await pipeline.processLead(lead)) || readLead(leadId, deps.root);
-  const demo = bestDemo(processed?.demos);
-  if (!demo) throw new Error(`pipeline produced no demo for ${site}${processed?.error ? `: ${processed.error}` : ""}`);
+  if (!pipeline) throw new Error(PIPELINE_UNAVAILABLE);
+  const root = deps.root ?? outreachRoot();
+  const added = pipeline.addLeads([site], { root });
+  const lead = added.added[0] ?? added.existing[0];
+  if (!lead) throw new Error(`pipeline rejected ${site}: ${added.invalid[0]?.reason ?? "invalid URL"}`);
+  const result = await pipeline.processLead(lead.id, {}, { root, completeJson: deps.completeJson });
+  const demo = bestDemo(result.lead.demos);
+  if (!demo) throw new Error(`pipeline produced no demo for ${site}${result.lead.error ? `: ${result.lead.error}` : ""}`);
   return demo;
 }
 

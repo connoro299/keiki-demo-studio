@@ -78,7 +78,7 @@ describe("leads routes", () => {
     const base = await start();
     const body = await (await fetch(`${base}/leads`)).json();
     expect(body.leads.map((l: Lead) => l.id)).toEqual([lead.id]);
-    expect(body.pipeline).toEqual({ installed: false, cli: false });
+    expect(body.pipeline).toMatchObject({ cli: false });
     expect((await fetch(base.replace("/api/outreach", "/other"))).status).toBe(418);
     expect((await fetch(`${base}/nope`)).status).toBe(404);
   });
@@ -117,16 +117,20 @@ describe("leads routes", () => {
     const received: string[][] = [];
     const base = await start({
       loadPipeline: async () => ({
-        addLeads: async (urls: string[]) => {
-          received.push(urls);
-          return urls.map((url) => ({ ...lead, id: "pipe-1", url, status: "queued" as const }));
+        addLeads: (urls) => {
+          received.push(urls as string[]);
+          return { added: (urls as string[]).map((url) => ({ ...lead, id: "pipe-1", url, status: "queued" as const })), existing: [lead], invalid: [{ input: "x", reason: "bad" }] };
+        },
+        processLead: async () => {
+          throw new Error("not used");
         },
       }),
     });
     const body = await (await fetch(`${base}/leads`, json({ urls: ["sproutdental.com"] }))).json();
     expect(received).toEqual([["https://sproutdental.com"]]);
     expect(body.via).toBe("pipeline");
-    expect(body.leads[0].id).toBe("pipe-1");
+    expect(body.leads.map((l: Lead) => l.id)).toEqual(["pipe-1", lead.id]);
+    expect(body.invalid).toEqual(["x"]);
   });
 
   it("POST run is 501 without the pipeline CLI and spawns it detached when present", async () => {

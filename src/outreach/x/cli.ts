@@ -1,7 +1,7 @@
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { completeJson as realCompleteJson } from "../llm";
+import { completeJson as realCompleteJson, type LlmStatus } from "../llm";
 import { listXDrafts, outreachRoot, readXDraft, writeXDraft } from "../store";
 import type { XDraft, XDraftStatus } from "../types";
 import { seedFixtures } from "../fixtures";
@@ -56,6 +56,8 @@ export type CliDeps = Partial<QueueDeps> & {
   io?: CliIo;
   /** Skip the Claude availability check (tests inject completeJson). */
   skipLlmCheck?: boolean;
+  /** Claude availability probe; defaults to llm.ts llmStatus(). */
+  llmStatus?: () => Promise<LlmStatus>;
 };
 
 type Flags = { _: string[]; [key: string]: string | boolean | string[] };
@@ -150,7 +152,7 @@ export async function runXCli(argv: string[], deps: CliDeps = {}): Promise<numbe
         if (command === "import" && !rest[0]) throw new UsageError("import needs a JSON file");
 
         if (!deps.completeJson && !deps.skipLlmCheck) {
-          const llm = checkLlm(env);
+          const llm = await checkLlm(deps.llmStatus);
           if (!llm.ok) return fail(3, llm.message);
         }
 

@@ -274,7 +274,13 @@ function LeadDetail({ lead, onLead, onBack }: { lead: Lead; onLead: (lead: Lead)
         <StatusPill status={lead.status} label={LEAD_STATUS_LABEL[lead.status]} />
       </header>
 
-      {lead.status === "failed" ? <div className="ox-callout ox-callout-error">{lead.error ?? "The pipeline failed on this site."}</div> : null}
+      {lead.status === "failed" ? (
+        <div className="ox-callout ox-callout-error">
+          {lead.failedStep ? <strong>Failed at {lead.failedStep}. </strong> : null}
+          {lead.error ?? "The pipeline failed on this site."}
+          <div className="ox-callout-cmd">Retry: <code>npm run outreach -- redo {lead.id}{lead.failedStep ? ` --from ${lead.failedStep}` : ""}</code></div>
+        </div>
+      ) : null}
       {isWorking(lead.status) ? (
         <div className="ox-callout">
           {LEAD_STATUS_LABEL[lead.status]}… The demos and draft appear here when the pipeline finishes.
@@ -304,6 +310,7 @@ function LeadDetail({ lead, onLead, onBack }: { lead: Lead; onLead: (lead: Lead)
                 <figcaption>
                   <span className="ox-demo-channel">{CHANNEL_LABEL[demo.channel]}</span>
                   <span className="ox-demo-story">{demo.story}</span>
+                  {demo.renderError ? <span className="ox-demo-error">Render failed: {demo.renderError}</span> : null}
                   <span className="ox-demo-links">
                     {demo.mp4 ? <a href={mediaUrl(demo.mp4, true)} download>MP4</a> : null}
                     {demo.gif ? <a href={mediaUrl(demo.gif, true)} download>GIF</a> : null}
@@ -382,6 +389,12 @@ function LeadDetail({ lead, onLead, onBack }: { lead: Lead; onLead: (lead: Lead)
               />
             </label>
           </div>
+          {lead.draft?.variants?.form || lead.draft?.variants?.xDm ? (
+            <div className="ox-variants">
+              {lead.draft.variants.form ? <Variant label="Contact form" text={lead.draft.variants.form} /> : null}
+              {lead.draft.variants.xDm ? <Variant label="X DM / LinkedIn" text={lead.draft.variants.xDm} /> : null}
+            </div>
+          ) : null}
           {to && to.kind === "form" && to.value === toText ? (
             <p className="ox-note">This contact is a form. Copy the email, then <a href={to.value} target="_blank" rel="noreferrer">open the form</a>.</p>
           ) : null}
@@ -439,5 +452,24 @@ function LeadDetail({ lead, onLead, onBack }: { lead: Lead; onLead: (lead: Lead)
         <CommandBlock commands={["# no draft yet — run the pipeline for this site", `npm run outreach -- redo ${lead.id}`]} />
       ) : null}
     </article>
+  );
+}
+
+function Variant({ label, text }: { label: string; text: string }) {
+  const [flash, setFlash] = useFlash();
+  return (
+    <div className="ox-variant">
+      <div className="ox-variant-head">
+        <span className="ox-field-label">{label}</span>
+        <button
+          type="button"
+          className="ox-btn ox-btn-small ox-btn-quiet"
+          onClick={() => navigator.clipboard.writeText(text).then(() => setFlash("Copied"), () => setFlash("Copy failed"))}
+        >
+          {flash ?? "Copy"}
+        </button>
+      </div>
+      <p className="ox-variant-text">{text}</p>
+    </div>
   );
 }

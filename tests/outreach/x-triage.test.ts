@@ -142,13 +142,17 @@ describe("dedupe and drafting", () => {
       completeJson: llm.completeJson,
       root,
       loadPipeline: async () => ({
-        addLeads: async (urls: string[]) => {
-          pipelineCalls.push(...urls);
-          const lead: Lead = { id: "harbor", url: urls[0], status: "queued", demos: [], createdAt: "", updatedAt: "" };
+        addLeads: (inputs, deps) => {
+          pipelineCalls.push(...(inputs as string[]));
+          expect(deps?.root).toBe(root);
+          const lead: Lead = { id: "harbor", url: inputs[0] as string, status: "queued", demos: [], createdAt: "", updatedAt: "" };
           writeLead(lead, root);
-          return [lead];
+          return { added: [lead], existing: [], invalid: [] };
         },
-        processLead: async (lead: Lead | string) => ({ ...(lead as Lead), status: "drafted" as const, demos: [{ ...demo, mp4: undefined, channel: "sms" as const }, demo] }),
+        processLead: async (id) => ({
+          lead: { id, url: "https://harborbarbers.co", status: "drafted" as const, createdAt: "", updatedAt: "", demos: [{ ...demo, mp4: undefined, channel: "sms" as const }, demo] },
+          ran: ["analyze", "generate", "render", "draft"],
+        }),
       }),
     }, { demo: true });
     expect(pipelineCalls).toEqual(["https://harborbarbers.co"]);
@@ -188,13 +192,11 @@ describe("import formats", () => {
 });
 
 describe("checkLlm", () => {
-  it("accepts an API key without running anything", () => {
-    expect(checkLlm({ ANTHROPIC_API_KEY: "k" }, () => { throw new Error("should not run"); })).toEqual({ ok: true, via: "api" });
-  });
-  it("reads `claude auth status`", () => {
-    expect(checkLlm({}, () => ({ status: 0, stdout: '{"loggedIn": true}' }))).toEqual({ ok: true, via: "cli" });
-    expect(checkLlm({}, () => ({ status: 1, stdout: '{"loggedIn": false}' }))).toEqual({ ok: false, message: LLM_UNAVAILABLE });
-    expect(checkLlm({}, () => ({ status: null, stdout: "", error: new Error("ENOENT") }))).toEqual({ ok: false, message: LLM_UNAVAILABLE });
+  it("passes through llmStatus and swaps in the X queue message when unavailable", async () => {
+    expect(await checkLlm(async () => ({ ok: true, via: "cli" }))).toEqual({ ok: true, via: "cli" });
+    expect(await checkLlm(async () => ({ ok: false, reason: "claude is not signed in" }))).toEqual({ ok: false, message: LLM_UNAVAILABLE });
+    expect(LLM_UNAVAILABLE).toMatch(/ANTHROPIC_API_KEY.*Nothing was drafted\.$/);
+    expect(LLM_UNAVAILABLE).not.toContain("--no-llm");
   });
 });
 
@@ -234,7 +236,7 @@ describe("x CLI", () => {
 
   it("fails fast with one clear message when Claude is unavailable", async () => {
     const c = io();
-    const code = await runXCli(["add", "https://x.com/a/status/1"], { root, io: c.io, env: { CLAUDE_BIN: "/nonexistent/claude" } });
+    const code = await runXCli(["add", "https://x.com/a/status/1"], { root, io: c.io, llmStatus: async () => ({ ok: false, reason: "not signed in" }) });
     expect(code).toBe(3);
     expect(c.err).toEqual([LLM_UNAVAILABLE]);
   });
