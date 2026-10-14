@@ -18,6 +18,7 @@ export function toDemoFlow(document: AuthoringDocument, platform: DemoPlatform):
     id: document.id,
     title: document.title,
     platform,
+    ...(document.channel ? { channel: document.channel } : {}),
     theme: document.theme,
     contact: document.contact,
     nowMs: document.nowMs,
