@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { CompiledDemo, DemoPlayerProps, DemoPlatform, DemoTheme, RendererHandle } from "@/contracts";
+import type { CompiledDemo, DemoChannel, DemoPlayerProps, DemoPlatform, DemoTheme, RendererHandle } from "@/contracts";
+import { applyChannel } from "@/compiler";
 import profiles from "@/contracts/render-profiles.json";
 import { createPlayer } from "@/runtime";
 import { IosFrame } from "@/renderers/ios";
 import { useInteractivePreview } from "./interactive-preview";
 import { MacDemoRenderer, type MacRendererHandle } from "@/renderers/macos";
+import { ChatDemoRenderer, isChatChannel, type ChatRendererHandle } from "@/renderers/chat";
 import { CatalogueRoute, CatalogueSceneById, isCatalogueSceneId } from "@/player/catalogue";
 import { createRuntimeSession } from "@/player/controller";
 import { playbackBarHeightPx, playbackControlLabel, runPlaybackControl } from "@/player/playback";
@@ -42,7 +44,11 @@ export function DemoPlayer({
   const bindMacRenderer = useCallback((handle: MacRendererHandle | null) => {
     rendererRef.current = handle;
   }, []);
+  const bindChatRenderer = useCallback((handle: ChatRendererHandle | null) => {
+    rendererRef.current = handle;
+  }, []);
   const [platform, setPlatform] = useState<DemoPlatform>(compiled.platform);
+  const [channel, setChannel] = useState<DemoChannel>(() => channelOverride() ?? compiled.channel ?? "imessage");
   const [theme, setTheme] = useState<DemoTheme>(compiled.theme);
   const [tick, setTick] = useState(0);
   const [preview, setPreview] = useState<{ source: CompiledDemo; compiled: CompiledDemo; timeMs: number } | null>(null);
@@ -51,7 +57,11 @@ export function DemoPlayer({
   const [seekKey, setSeekKey] = useState(0);
   const [resetToOpening, setResetToOpening] = useState(false);
   const activePreview = preview?.source === compiled ? preview : null;
-  const activeCompiled = activePreview?.compiled ?? compiled;
+  const sourceCompiled = activePreview?.compiled ?? compiled;
+  const activeCompiled = useMemo(() => applyChannel(sourceCompiled, channel), [sourceCompiled, channel]);
+  // WhatsApp, Telegram and Slack are iPhone-sized renderers regardless of the Messages platform toggle.
+  const chat = isChatChannel(channel);
+  const viewPlatform: DemoPlatform = chat ? "ios" : platform;
   const player = useMemo(() => {
     const created = createPlayer(activeCompiled);
     const start = activePreview?.timeMs ?? (replayKey || resetToOpening ? 0 : initialTimeMs);
@@ -95,8 +105,8 @@ export function DemoPlayer({
   }, [player, replayKey]);
 
   useEffect(() => {
-    session.setView(platform, theme);
-  }, [platform, session, theme]);
+    session.setView(viewPlatform, theme);
+  }, [viewPlatform, session, theme]);
 
   useEffect(() => {
     const handle: RendererHandle = {
@@ -149,15 +159,15 @@ export function DemoPlayer({
   }, [player]);
 
   const state = player.state();
-  const frame = { ...session.frame(), platform, theme };
-  const profile = profiles[platform];
-  const compiledView = { ...session.playbackCompiled(), platform, theme };
+  const frame = { ...session.frame(), platform: viewPlatform, theme };
+  const profile = profiles[viewPlatform];
+  const compiledView = { ...session.playbackCompiled(), platform: viewPlatform, theme };
   const playbackLabel = playbackControlLabel(state);
   const replayDemo = () => {
     player.pause(); setPreview(null); setPreviewDirty(false); setReplayKey(key => key + 1);
   };
   const interaction = useInteractivePreview({
-    frame, playing: state.playing, enabled: !capture && platform === "ios", resetKey: replayKey + seekKey,
+    frame, playing: state.playing, enabled: !capture && viewPlatform === "ios" && !chat, resetKey: replayKey + seekKey,
     pause: () => player.pause(), changed: () => setPreviewDirty(true),
     append(events, settleMs = 0) {
       player.pause();
@@ -200,6 +210,7 @@ export function DemoPlayer({
       ) : (
         <PlayerChrome
           platform={platform}
+          channel={channel}
           theme={theme}
           playbackLabel={playbackLabel}
           inspect={session.inspect().messageId}
@@ -207,6 +218,7 @@ export function DemoPlayer({
           scenarios={scenarios ?? [{ id: compiled.id, title: compiled.id }]}
           onScenario={onScenario}
           onPlatform={setPlatform}
+          onChannel={setChannel}
           onTheme={setTheme}
           onPlayback={onPlayback}
         />
@@ -218,13 +230,16 @@ export function DemoPlayer({
       <div
         ref={frameRef}
         data-demo-frame=""
-        data-platform={platform}
+        data-platform={viewPlatform}
+        data-channel={channel}
         data-theme={theme}
         data-playback-baseline={playbackBaseline}
         className={theme === "dark" ? "dark" : undefined}
         style={{ width: profile.width, height: profile.height }}
       >
-        {platform === "macos" ? (
+        {chat ? (
+          <ChatDemoRenderer ref={bindChatRenderer} compiled={compiledView} frame={frame} channel={channel} />
+        ) : viewPlatform === "macos" ? (
           <MacDemoRenderer ref={bindMacRenderer} compiled={compiledView} frame={frame} />
         ) : (
           <IosFrame ref={rendererRef} compiled={compiledView} frame={frame} shell={interaction.shell} previewOverlay={interaction.overlay} />
@@ -242,8 +257,24 @@ function PlaybackButton({ label, onClick }: { label: ReturnType<typeof playbackC
   );
 }
 
+const CHANNEL_OPTIONS: Array<{ id: DemoChannel; label: string }> = [
+  { id: "imessage", label: "iMessage" },
+  { id: "sms", label: "SMS" },
+  { id: "whatsapp", label: "WhatsApp" },
+  { id: "telegram", label: "Telegram" },
+  { id: "slack", label: "Slack" },
+];
+
+/** `?channel=whatsapp` views any scenario in another channel. */
+function channelOverride(): DemoChannel | null {
+  if (typeof window === "undefined") return null;
+  const value = new URLSearchParams(window.location.search).get("channel");
+  return CHANNEL_OPTIONS.some((option) => option.id === value) ? (value as DemoChannel) : null;
+}
+
 function PlayerChrome(props: {
   platform: DemoPlatform;
+  channel: DemoChannel;
   theme: DemoTheme;
   playbackLabel: ReturnType<typeof playbackControlLabel>;
   inspect: string | null;
@@ -251,6 +282,7 @@ function PlayerChrome(props: {
   scenarios: { id: string; title: string }[];
   onScenario?: (id: string) => void;
   onPlatform: (platform: DemoPlatform) => void;
+  onChannel: (channel: DemoChannel) => void;
   onTheme: (theme: DemoTheme) => void;
   onPlayback: () => void;
 }) {
@@ -273,6 +305,13 @@ function PlayerChrome(props: {
         <button type="button" aria-pressed={props.platform === "macos"} onClick={() => props.onPlatform("macos")}>
           macOS
         </button>
+      </div>
+      <div data-channel-switcher="">
+        {CHANNEL_OPTIONS.map((option) => (
+          <button key={option.id} type="button" aria-pressed={props.channel === option.id} onClick={() => props.onChannel(option.id)}>
+            {option.label}
+          </button>
+        ))}
       </div>
       <div>
         <button type="button" aria-pressed={props.theme === "light"} onClick={() => props.onTheme("light")}>
