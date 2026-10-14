@@ -86,6 +86,15 @@ Checkpoint IDs must exist in your flow. Use fresh output directories for each ru
 
 Playback time is `message.atMs` minus the first message `atMs`; checkpoints use that clock. PNGs contain `[data-demo-frame]` only. Their pixel size is the CSS viewport times the capture device scale (2 on both platforms). `manifest.json` records the scenario, timestamps, and ready receipt. Sampled PNGs are not a video, and a local preview is not publication.
 
+Export a real video file (MP4 for X, GIF for email) through the same player:
+
+```sh
+npm run demo -- export ./your-flow.json --out artifacts/exports/run --json
+npm run demo -- export ./your-flow.json --out artifacts/exports/dark --formats mp4,gif,poster --fps 30 --platform ios --theme dark
+```
+
+`export` seeks `IMESSAGE_DEMO.seek/ready` once per frame from 0 to the compiled duration plus a held tail (`--tail-ms`, default 1200) and pipes each `[data-demo-frame]` screenshot straight into ffmpeg. Outputs: `<id>.mp4` (H.264 `libx264`, `yuv420p`, CRF 18, constant frame rate, `+faststart`, 804x1748 on iOS at scale 2), `<id>.gif` (two-pass palette, 15 fps, 480 px wide, loops forever; past 5 MB it steps fps then width down and warns), `<id>-poster.png` (final settled frame), and `manifest.json`. The MP4 has an audio track only when the flow has audible audio messages; no music is added. `--out` must be missing or empty. `--json` prints the paths, `durationMs`, `frames`, and per-file bytes, dimensions, and durations. Frames whose DOM, scroll, and animation state are unchanged reuse the previous screenshot (`--no-dedupe` disables); `--concurrency` sets parallel player pages and `--gpu` trades bit-for-bit software rendering for speed. ffmpeg resolves from `FFMPEG_PATH`, then `PATH`, then the bundled `ffmpeg-static` dependency; none is exit `3`. Programmatic use: `exportVideo(flowPathOrDemoFlow, { outDir, formats })` from `src/export/video.ts`.
+
 ```sh
 npm run demo -- capabilities --json
 ```
@@ -111,7 +120,7 @@ npm run test:e2e
 
 The pin is the current `imessage.swerdlow.dev` registry. iOS flows can author groups, search, stickers, the recorder, Tapback details, FaceTime cards, and polls. A FaceTime card does not place a call. Photon mini apps other than the checkout card, and provider send/receive, stay out of scope. The live Photon checkout is an iOS `app-card`: its Apple Pay button opens a recreation of the recorded Apple Pay sheet over the phone, with the checkout's own values, and never calls native Apple Pay or charges anything. Its configuration (`VITE_PHOTON_CHECKOUT_ORIGINS`), bridge, provisional card picker, and measured visual differences are in [the presentation notes](docs/apple-pay-presentation.md). Do not rewrite a required unsupported interaction as text or a picture. Do not author `tail`, `gapBefore`, or pixel positions.
 
-The current flow has contact name/initials, not an avatar-logo field, chat wallpaper, or outer presentation settings. Researching an asset does not add its placement to the renderer. Keep prepared versus visibly applied branding clear. There is no built-in MP4 or publish command; export/publication requires actual supported tooling, not a claim based on a development URL.
+The current flow has contact name/initials, not an avatar-logo field, chat wallpaper, or outer presentation settings. Researching an asset does not add its placement to the renderer. Keep prepared versus visibly applied branding clear. `export` writes local MP4/GIF/poster files; there is no publish command, and publication requires actual supported tooling, not a claim based on a development URL.
 
 ## Troubleshooting
 

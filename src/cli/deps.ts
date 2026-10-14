@@ -16,6 +16,7 @@ export type CliDeps = {
   io: Io;
   startPreviewServer?: typeof import("@/cli/preview-server").startPreviewServer;
   runCaptureEngine?: typeof import("@/cli/capture/engine").runCaptureEngine;
+  exportVideo?: typeof import("@/export/video").exportVideoWithDeps;
 };
 
 export function defaultRepoRoot(): string {
@@ -37,6 +38,7 @@ export async function loadDeps(overrides: Partial<CliDeps> = {}): Promise<CliDep
       io,
       startPreviewServer: overrides.startPreviewServer,
       runCaptureEngine: overrides.runCaptureEngine,
+      exportVideo: overrides.exportVideo,
     };
   }
   const compiler = await import("@/compiler");
@@ -47,6 +49,7 @@ export async function loadDeps(overrides: Partial<CliDeps> = {}): Promise<CliDep
     io,
     startPreviewServer: overrides.startPreviewServer,
     runCaptureEngine: overrides.runCaptureEngine,
+    exportVideo: overrides.exportVideo,
   };
 }
 

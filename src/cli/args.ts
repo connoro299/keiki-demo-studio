@@ -1,7 +1,8 @@
 import { CliError, EXIT_USAGE } from "@/cli/errors";
-import type { DemoPlatform } from "@/contracts";
+import type { DemoPlatform, DemoTheme } from "@/contracts";
+import { EXPORT_FORMATS, type ExportFormat } from "@/export/index";
 
-export type CliCommand = "capabilities" | "validate" | "compile" | "preview" | "capture" | "generate" | "plan-sheet" | "help";
+export type CliCommand = "capabilities" | "validate" | "compile" | "preview" | "capture" | "export" | "generate" | "plan-sheet" | "help";
 
 export type ParsedArgs = {
   command: CliCommand;
@@ -19,9 +20,22 @@ export type ParsedArgs = {
   frames: boolean;
   intervalMs: number;
   catalogue: boolean;
+  /** export only */
+  formats?: ExportFormat[];
+  fps?: number;
+  theme?: DemoTheme;
+  tailMs?: number;
+  scale?: number;
+  gifWidth?: number;
+  gifFps?: number;
+  crf?: number;
+  maxDurationMs?: number;
+  concurrency?: number;
+  gpu: boolean;
+  dedupe: boolean;
 };
 
-const COMMANDS = new Set<CliCommand>(["capabilities", "validate", "compile", "preview", "capture", "generate", "plan-sheet", "help"]);
+const COMMANDS = new Set<CliCommand>(["capabilities", "validate", "compile", "preview", "capture", "export", "generate", "plan-sheet", "help"]);
 
 export function parseArgs(argv: string[]): ParsedArgs {
   const flags: Record<string, string | boolean> = {};
@@ -44,6 +58,14 @@ export function parseArgs(argv: string[]): ParsedArgs {
     }
     if (token === "--catalogue") {
       flags.catalogue = true;
+      continue;
+    }
+    if (token === "--gpu") {
+      flags.gpu = true;
+      continue;
+    }
+    if (token === "--no-dedupe") {
+      flags.noDedupe = true;
       continue;
     }
     if (token.startsWith("--")) {
@@ -82,7 +104,52 @@ export function parseArgs(argv: string[]): ParsedArgs {
     frames: Boolean(flags.frames),
     intervalMs: parseNumber(flags["interval-ms"], "interval-ms") ?? 1000,
     catalogue: Boolean(flags.catalogue),
+    formats: parseFormats(flags.formats),
+    fps: parsePositiveInteger(flags.fps, "fps"),
+    theme: parseTheme(flags.theme),
+    tailMs: parseNumber(flags["tail-ms"], "tail-ms"),
+    scale: parseScale(flags.scale),
+    gifWidth: parsePositiveInteger(flags["gif-width"], "gif-width"),
+    gifFps: parsePositiveInteger(flags["gif-fps"], "gif-fps"),
+    crf: parseNumber(flags.crf, "crf"),
+    maxDurationMs: parsePositiveInteger(flags["max-duration-ms"], "max-duration-ms"),
+    concurrency: parsePositiveInteger(flags.concurrency, "concurrency"),
+    gpu: Boolean(flags.gpu),
+    dedupe: !flags.noDedupe,
   };
+}
+
+function parseFormats(value: string | boolean | undefined): ExportFormat[] | undefined {
+  if (value === undefined) return undefined;
+  const formats = String(value).split(",").map((item) => item.trim().toLowerCase()).filter(Boolean);
+  if (formats.length === 0) throw new CliError("--formats needs at least one of mp4, gif, poster", EXIT_USAGE);
+  for (const format of formats) {
+    if (!EXPORT_FORMATS.includes(format as ExportFormat)) {
+      throw new CliError(`--formats accepts mp4, gif, poster (got ${format})`, EXIT_USAGE);
+    }
+  }
+  return [...new Set(formats)] as ExportFormat[];
+}
+
+function parseTheme(value: string | boolean | undefined): DemoTheme | undefined {
+  if (value === undefined) return undefined;
+  if (value === "light" || value === "dark") return value;
+  throw new CliError("--theme must be light or dark", EXIT_USAGE);
+}
+
+function parsePositiveInteger(value: string | boolean | undefined, name: string): number | undefined {
+  const parsed = parseNumber(value, name);
+  if (parsed === 0) throw new CliError(`--${name} must be a positive integer`, EXIT_USAGE);
+  return parsed;
+}
+
+function parseScale(value: string | boolean | undefined): number | undefined {
+  if (value === undefined) return undefined;
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed <= 0 || parsed > 4) {
+    throw new CliError("--scale must be a number greater than 0 and at most 4", EXIT_USAGE);
+  }
+  return parsed;
 }
 
 function parsePlatform(value: string | boolean | undefined): DemoPlatform | undefined {

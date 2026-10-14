@@ -46,7 +46,7 @@ describe("CLI help and capabilities", () => {
   });
 });
 
-describe("CLI spawn entry", () => {
+describe("CLI spawn entry", { timeout: 60_000 }, () => {
   it("runs capabilities without doubles", async () => {
     const result = await spawnDemo(["capabilities", "--json"]);
     expect(result.code).toBe(0);

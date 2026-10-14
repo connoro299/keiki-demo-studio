@@ -3,7 +3,7 @@ import path from 'node:path';
 import { planHumanRequest, type SheetValidationContext } from '@/generator/sheet-request';
 import { inspectAsset } from './preflight';
 import type { ParsedArgs } from './args';
-export function sheetContext(args: ParsedArgs, repoRoot: string): SheetValidationContext {
+export function sheetContext(args: Pick<ParsedArgs, 'humanRequest' | 'sheetExperience'>, repoRoot: string): SheetValidationContext {
   // The CLI caller is the trusted human-input adapter. Never read a receipt/source flag from a flow,
   // sheet plan, web page or model response. Keep the original human text in a separate input channel.
   const text = args.humanRequest ? readFileSync(path.resolve(args.humanRequest), 'utf8') : '';

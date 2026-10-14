@@ -159,7 +159,18 @@ npm run demo -- capture "$FLOW" --json --platform ios --checkpoint after-reply -
 npm run demo -- capture "$FLOW" --json --platform ios --frames --interval-ms 500 --out "$OUT/frames"
 ```
 
-Named checkpoint IDs must exist in the actual flow. The commands above refer to the walkover example. Captures contain `[data-demo-frame]` only, not player controls or an outer background. Device scale is 2; manifests record revision-specific `IMESSAGE_DEMO.ready` receipts and the rendering environment. Frame sampling produces PNGs, not an MP4 or a live screen recording.
+Named checkpoint IDs must exist in the actual flow. The commands above refer to the walkover example. Captures contain `[data-demo-frame]` only, not player controls or an outer background. Device scale is 2; manifests record revision-specific `IMESSAGE_DEMO.ready` receipts and the rendering environment. Frame sampling produces PNGs, not an MP4 or a live screen recording; use `export` for video.
+
+### Export video (MP4 / GIF / poster)
+
+When a deliverable is a video (an MP4 to post, a GIF to email), export it through the same player instead of screen-recording:
+
+```sh
+npm run demo -- export "$FLOW" --json --platform ios --out "$OUT/video"
+npm run demo -- export "$FLOW" --json --platform ios --theme dark --formats mp4,poster --out "$OUT/video-dark"
+```
+
+Export seeks `IMESSAGE_DEMO.seek/ready` once per frame (default 30 fps) from 0 to the compiled duration plus a 1200 ms held tail and screenshots `[data-demo-frame]`, so the video shows exactly what capture shows, for every channel renderer. It writes `<flow-id>.mp4` (H.264, yuv420p, CRF 18, constant frame rate, faststart; 804x1748 on iOS), `<flow-id>.gif` (15 fps, 480 px wide, loops; steps fps/width down automatically past 5 MB and warns), `<flow-id>-poster.png` (final settled frame), and `manifest.json`. The MP4 carries an audio track only when the flow has audible audio messages (`audio.src` plus a playing `audio-control`); no music is added. `--out` must be missing or empty. `--formats`, `--fps`, `--theme`, `--tail-ms`, `--gif-width`, `--gif-fps`, and `--max-duration-ms` (default 10 minutes; refuses day-long `atMs` gaps) are optional; `npm run demo -- export --help` lists all. ffmpeg comes from `FFMPEG_PATH`, then `PATH`, then the bundled `ffmpeg-static` binary (exit 3 if none). Inspect at least an opening, a mid-conversation, and the final frame of the MP4 (for example `ffmpeg -ss <s> -i <mp4> -frames:v 1 frame.png`) before handing it off; exported files are local output, not publication.
 
 Inspect opening, proof/final, and changed-transition images for direction, company name, wrapping, clipping, scroll position, media order, crops, and old-brand remnants. Correct data/assets and capture again. If the issue requires renderer changes, report it instead of silently expanding the task. Follow Photon Demo Creator's HTML review and handoff after rendering. Do not label an uninspected render approved.
 
@@ -167,9 +178,9 @@ On failure, inspect the error/`failure.json` and use a fresh output directory wh
 
 ## 6. Handoff and optional publishing
 
-Return the exact flow paths, produced PNG/manifest paths, and actual running preview URLs. Identify each use case and state what was visually/playback checked. Report prepared versus applied branding and any unsupported required feature. A preview is not a phone number, a PNG sequence is not a video, and local output is not publication.
+Return the exact flow paths, produced PNG/MP4/GIF/manifest paths, and actual running preview URLs. Identify each use case and state what was visually/playback checked. Report prepared versus applied branding and any unsupported required feature. A preview is not a phone number, a PNG sequence is not a video (an `export` MP4 is), and local output is not publication.
 
-Publishing requires an explicit request, an authorized identifiable target, and an export artifact the actual tool supports. This CLI has no publish or MP4 command; the development manifest middleware is not a static export. Do not rebuild the frontend or provision Photon to disguise an unsupported deliverable.
+Publishing requires an explicit request, an authorized identifiable target, and an export artifact the actual tool supports. This CLI exports MP4/GIF/poster files locally but has no publish command; the development manifest middleware is not a static export. Do not rebuild the frontend or provision Photon to disguise an unsupported deliverable.
 
 For changes to these instructions, run `node scripts/check-demo-skills.mjs`; it checks documentation alignment, not native UI fidelity.
 

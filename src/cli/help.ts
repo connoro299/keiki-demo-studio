@@ -8,6 +8,7 @@ Commands:
   compile        Validate, then write deterministic compiled artifacts
   preview        Serve a local player preview and print the bound URL
   capture        Capture PNG frames through the IMESSAGE_DEMO ready API
+  export         Render MP4 (H.264), GIF, and a poster PNG through the same player
 
 Options:
   --human-request <file>    Actual human input, separate from generated app data
@@ -22,6 +23,9 @@ Options:
   --frames            Sample fixed logical timestamps (not a real-time recording)
   --interval-ms <n>   Frame sampling interval (default 1000)
   --catalogue         Preview/capture the finite catalogue route
+  --formats <list>    export: comma list of mp4,gif,poster (default all three)
+  --fps <n>           export: MP4 frame rate (default 30)
+  --theme <name>      export: override the flow theme, light or dark
   -h, --help          Show this help
 
 Authoring:
@@ -37,7 +41,7 @@ Exit codes:
   0  success
   1  usage or unexpected error
   2  validation (schema, malformed polls, unsupported features)
-  3  environment (assets, port, browser)
+  3  environment (assets, port, browser, ffmpeg)
 `;
 
 export const COMMAND_HELP: Record<string, string> = {
@@ -63,5 +67,33 @@ Logs go to stderr. --json prints one ready object to stdout.
 
 Waits on IMESSAGE_DEMO.seek/ready receipts. Screenshots [data-demo-frame] only.
 A capture failure writes failure.json and does not write a success manifest.
+`,
+  export: `Usage: npm run demo -- export <file> --out <dir> [--formats mp4,gif,poster] [--fps 30]
+       [--platform ios|macos] [--theme light|dark] [--json]
+
+Seeks the same player as capture (IMESSAGE_DEMO.seek/ready, [data-demo-frame] only) once per frame
+from 0 to the timeline end plus a held tail, and pipes the frames into ffmpeg:
+  mp4     H.264 (libx264, CRF 18, yuv420p, constant frame rate, +faststart). An audio track only
+          when the flow has audible audio messages that play; no music is added.
+  gif     For email: two-pass palette, 15 fps, 480 px wide (lanczos), loops forever. Over 5 MB,
+          fps and then width step down automatically and a warning is printed.
+  poster  PNG of the final settled frame at device scale.
+
+Options:
+  --out <dir>          Must be missing or empty (default artifacts/exports/run-<pid>-<time>)
+  --tail-ms <n>        Hold the final frame this long (default 1200)
+  --scale <n>          Device scale for frames (default 2: 804x1748 on iOS)
+  --gif-width <n>      GIF width in px (default 480)
+  --gif-fps <n>        GIF frame rate (default 15)
+  --crf <n>            x264 quality, lower is larger (default 18)
+  --max-duration-ms <n> Refuse longer videos (default 600000 = 10 min); catches day-long atMs gaps
+  --concurrency <n>    Player pages seeking in parallel (default up to 4; frames are per-timestamp)
+  --gpu                Hardware GPU raster: faster, but pixels depend on this machine's GPU
+  --no-dedupe          Screenshot every frame, even when DOM/scroll/animation state is unchanged
+  --port <n>           Bind the local player to this port
+
+ffmpeg comes from FFMPEG_PATH, then ffmpeg on PATH, then the bundled ffmpeg-static binary.
+--json prints one object: the paths, durationMs, frames, per-file bytes/size/duration, timings.
+A failure writes failure.json in the output directory and removes partial videos.
 `,
 };
