@@ -38,7 +38,9 @@ function FlowRoute({ id, atMs }: { id: string; atMs: number }) {
   if (!flow) {
     return <ScenarioError issues={[{ path: "/id", message: `UNKNOWN_FLOW: no scenario named ${id}` }]} />;
   }
-  const validated = validateDemo(flow);
+  // targets/checkpoints are CLI authoring fields (src/cli/authoring.ts), not part of DemoFlow.
+  const { targets: _targets, checkpoints: _checkpoints, ...demoFlow } = flow as DemoFlow & { targets?: unknown; checkpoints?: unknown };
+  const validated = validateDemo(demoFlow);
   if (!validated.ok) return <ScenarioError issues={validated.issues} />;
   const compiled = compileDemo(validated.demo);
   const baseline = validated.demo.startAtMs ?? validated.demo.messages[0]?.atMs ?? 0;
