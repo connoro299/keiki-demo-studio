@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+<head><title>Talk to sales — Tidewater</title></head>
+<body>
+  <h1>Talk to sales</h1>
+  <p>Tell us about your team and we'll set up a 20-minute walkthrough.</p>
+  <form action="/api/contact" method="POST" class="contact-form">
+    <label>Full name <input name="full_name" type="text"></label>
+    <label>Work email <input name="work_email" type="email" placeholder="you@company.com"></label>
+    <label>Company size
+      <select name="size"><option>1-10</option><option>11-50</option></select>
+    </label>
+    <label>How can we help? <textarea name="details"></textarea></label>
+    <button type="submit">Request a demo</button>
+  </form>
+</body>
+</html>

@@ -89,3 +89,53 @@ function viaCli(options: Required<Pick<CompleteOptions, "model">> & CompleteOpti
     child.stdin.end(options.prompt);
   });
 }
+
+/** The two calls every outreach step takes through `deps`, so tests can inject fakes. */
+export type LlmDeps = {
+  complete?: (options: CompleteOptions) => Promise<string>;
+  completeJson?: <T>(options: CompleteOptions) => Promise<T>;
+};
+
+export type LlmStatus = { ok: true; via: "api" | "cli" } | { ok: false; reason: string };
+
+export const LLM_UNAVAILABLE_MESSAGE =
+  "No Claude access: set ANTHROPIC_API_KEY in .env.local, or sign in to Claude Code (claude auth login). " +
+  "Use --no-llm to analyze sites heuristically without a model.";
+
+/**
+ * Cheap preflight so a batch fails fast instead of failing every lead. An API key wins; otherwise asks
+ * the local `claude` CLI whether it is signed in (`claude auth status` prints JSON with `loggedIn`).
+ */
+export function llmStatus(): Promise<LlmStatus> {
+  if (process.env.ANTHROPIC_API_KEY) return Promise.resolve({ ok: true, via: "api" });
+  const bin = process.env.CLAUDE_BIN ?? "claude";
+  return new Promise((resolve) => {
+    let out = "";
+    let settled = false;
+    const done = (value: LlmStatus) => {
+      if (!settled) {
+        settled = true;
+        resolve(value);
+      }
+    };
+    const child = spawn(bin, ["auth", "status"], { stdio: ["ignore", "pipe", "pipe"] });
+    const timer = setTimeout(() => {
+      child.kill();
+      done({ ok: false, reason: `${bin} auth status timed out` });
+    }, 15000);
+    child.stdout.on("data", (chunk) => { out += chunk; });
+    child.on("error", (error) => {
+      clearTimeout(timer);
+      done({ ok: false, reason: `could not run ${bin}: ${error.message}` });
+    });
+    child.on("close", () => {
+      clearTimeout(timer);
+      try {
+        const parsed = JSON.parse(out) as { loggedIn?: boolean };
+        done(parsed.loggedIn ? { ok: true, via: "cli" } : { ok: false, reason: `${bin} is not signed in` });
+      } catch {
+        done({ ok: false, reason: `could not read ${bin} auth status` });
+      }
+    });
+  });
+}

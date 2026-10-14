@@ -40,6 +40,21 @@ export type SiteProfile = {
   /** Channels the business visibly uses already (a WhatsApp button, a Slack community…). */
   channelsSeen: DemoChannel[];
   fetchedAt: string;
+  /** Concrete details found on the site, used to ground generated demos (never invented). */
+  facts?: SiteFacts;
+  /** URLs that were fetched and read, homepage first. */
+  pages?: string[];
+  /** Trimmed visible text from the fetched pages (capped), for grounding and price checks. */
+  textSample?: string;
+  /** How summary/vertical/tone were produced. */
+  analyzedWith?: "llm" | "heuristic";
+};
+
+export type SiteFacts = {
+  prices?: string[];
+  hours?: string[];
+  locations?: string[];
+  policies?: string[];
 };
 
 export type DemoAsset = {
@@ -54,6 +69,8 @@ export type DemoAsset = {
   gif?: string;
   poster?: string;
   durationMs?: number;
+  /** Why media is missing (export module unavailable, encoder failure…). Cleared on success. */
+  renderError?: string;
 };
 
 export type DraftChannel = "email" | "form" | "x-dm" | "linkedin";
@@ -64,7 +81,20 @@ export type OutreachDraft = {
   subject: string;
   /** Plain text. A person edits and sends it. */
   body: string;
+  /** Shorter alternates for other surfaces. All plain text, all reviewed by a person. */
+  variants?: {
+    /** Contact-form message (no subject line), ~50–70 words. */
+    form?: string;
+    /** X DM / LinkedIn note, ≤ 280 characters. */
+    xDm?: string;
+  };
+  /** Repo-relative media to attach (GIF first, then MP4/poster). */
+  attachments?: string[];
+  createdAt?: string;
 };
+
+/** Resumable pipeline steps, in order. */
+export type PipelineStep = "analyze" | "generate" | "render" | "draft";
 
 export type LeadStatus = "queued" | "analyzing" | "generating" | "rendering" | "drafted" | "approved" | "sent" | "skipped" | "failed";
 
@@ -73,6 +103,8 @@ export type Lead = {
   url: string;
   status: LeadStatus;
   error?: string;
+  /** Step that failed; `run` resumes from here. */
+  failedStep?: PipelineStep;
   createdAt: string;
   updatedAt: string;
   /** Optional columns from an imported list (name, email, company…), kept verbatim. */
