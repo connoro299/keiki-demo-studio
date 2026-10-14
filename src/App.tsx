@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Suspense, lazy, useEffect, useState } from "react";
 import { compileDemo, validateDemo } from "@/compiler";
 import type { DemoFlow, ValidationIssue } from "@/contracts";
 import { ShellPreview } from "@/foundation/ShellPreview";
@@ -18,8 +18,18 @@ const negativeModules = import.meta.glob("../tests/negative/*.json", { eager: tr
 
 const INLINE_KEY = "imessage-demo-inline";
 
+// Outreach review dashboard (/?view=outreach). Lazy so its code and CSS never load on demo routes.
+const OutreachDashboard = lazy(() => import("@/dashboard/OutreachDashboard"));
+
 export function App() {
   const params = new URLSearchParams(window.location.search);
+  if (params.get("view") === "outreach") {
+    return (
+      <Suspense fallback={null}>
+        <OutreachDashboard />
+      </Suspense>
+    );
+  }
   const foundation = params.get("foundation");
   const theme = params.get("theme") === "dark" ? "dark" : "light";
   if (foundation === "ios" || foundation === "macos") {
