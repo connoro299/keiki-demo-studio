@@ -68,8 +68,8 @@ export function createRuntimeSession(args: {
         // A seek updates the logical clock before React commits the corresponding DOM.
         // Do not accept media readiness measured against the previous rendered frame.
         const expectedTime = currentFrame().timeMs;
-        const marker = element.closest?.('[data-slot="ios-demo-renderer"]')
-          ?? element.querySelectorAll<HTMLElement>('[data-slot="ios-demo-renderer"]')[0];
+        const timed = '[data-slot="ios-demo-renderer"], [data-slot="chat-demo-renderer"]';
+        const marker = element.closest?.(timed) ?? element.querySelectorAll<HTMLElement>(timed)[0];
         if (!args.player.state().playing && marker && Math.abs(Number(marker.getAttribute("data-time")) - expectedTime) > 0.001) {
           if ((args.now ?? Date.now)() - started > 15_000) throw new Error(`Renderer did not commit playback time ${expectedTime}`);
           await nextTick();

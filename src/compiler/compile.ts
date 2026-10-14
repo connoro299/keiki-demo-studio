@@ -1,5 +1,5 @@
 import { validateSheetSpec, type SheetValidationContext } from "@/generator/sheet-request";
-import type { CompiledDemo, CompiledEvent, DemoFlow, DemoMessage, OverlayState, PickerSelection, Reaction } from "@/contracts";
+import type { CompiledDemo, CompiledEvent, DemoChannel, DemoFlow, DemoMessage, OverlayState, PickerSelection, Reaction } from "@/contracts";
 import { tapbackMotion } from "@/contracts/tapback-motion";
 import { clonePoll, POLL_VOTE_SETTLE_MS } from "@/runtime/poll";
 import { arrivalWindow } from "./motion";
@@ -220,6 +220,8 @@ export function compileDemo(demo: DemoFlow, context?: SheetValidationContext): C
   const lastMessage = events.filter(event => event.type === "message").sort((a, b) => a.atMs - b.atMs).at(-1);
   if (lastMessage?.message.kind === "app-card") durationMs = Math.max(durationMs, lastMessage.atMs + 5000);
 
+  if (demo.channel === "sms") defaultSmsService(events);
+
   return {
     id: demo.id,
     platform: demo.platform,
@@ -236,4 +238,24 @@ export function compileDemo(demo: DemoFlow, context?: SheetValidationContext): C
     ...(demo.selectedConversationId ? { selectedConversationId: demo.selectedConversationId } : {}),
     ...(demo.library ? { library: demo.library.map((photo) => ({ ...photo })) } : {}),
   };
+}
+
+/** SMS wears the Messages UI as green bubbles: every message without an explicit service is SMS. */
+function defaultSmsService(events: CompiledEvent[]): void {
+  events.forEach((event, index) => {
+    if (event.type === "message" && event.message.service === undefined) {
+      events[index] = { ...event, message: { ...event.message, service: "sms" } };
+    }
+  });
+}
+
+/**
+ * View an already compiled demo in another channel (the player's channel switcher and `?channel=`).
+ * Returns the same object when nothing changes so memoized players stay stable.
+ */
+export function applyChannel(compiled: CompiledDemo, channel: DemoChannel | undefined): CompiledDemo {
+  if (channel === undefined || channel === (compiled.channel ?? "imessage")) return compiled;
+  const events = [...compiled.events];
+  if (channel === "sms") defaultSmsService(events);
+  return { ...compiled, channel, events };
 }

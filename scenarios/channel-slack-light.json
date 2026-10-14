@@ -1,0 +1,534 @@
+{
+  "id": "channel-slack-light",
+  "title": "Lumen Ops fulfillment check (Slack, light)",
+  "platform": "ios",
+  "channel": "slack",
+  "theme": "light",
+  "contact": {
+    "name": "Lumen Ops",
+    "initials": "LO",
+    "photo": "/demo-assets/channels/lumen-ops-app.png"
+  },
+  "nowMs": 1791970860000,
+  "startAtMs": 1791970790000,
+  "draft": "",
+  "typing": false,
+  "screen": "conversation",
+  "participants": [
+    {
+      "id": "maya",
+      "name": "Maya Chen",
+      "initials": "MC",
+      "me": true
+    },
+    {
+      "id": "ops",
+      "name": "Lumen Ops",
+      "photo": "/demo-assets/channels/lumen-ops-app.png"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "opening",
+      "atMs": 0
+    },
+    {
+      "id": "typing-first",
+      "atMs": 1364
+    },
+    {
+      "id": "agent-typing",
+      "atMs": 4978
+    },
+    {
+      "id": "unfurl",
+      "atMs": 10848
+    },
+    {
+      "id": "sent",
+      "atMs": 18566
+    },
+    {
+      "id": "reacted",
+      "atMs": 21552
+    },
+    {
+      "id": "settled-end",
+      "atMs": 27702
+    }
+  ],
+  "messages": [
+    {
+      "id": "stuck",
+      "text": "How many online orders are stuck in fulfillment today?",
+      "direction": "outgoing",
+      "atMs": 1791970792548
+    },
+    {
+      "id": "three",
+      "text": "3 orders are stuck, all waiting on the Ethiopia Guji restock:\n• LC-20431 · Jordan P. · 2 days\n• LC-20436 · Priya S. · 1 day\n• LC-20440 · Sam K. · 6 hours",
+      "direction": "incoming",
+      "atMs": 1791970796148
+    },
+    {
+      "id": "dash",
+      "text": "Live view: ops.lumen.coffee/fulfillment",
+      "kind": "link",
+      "link": {
+        "url": "https://ops.lumen.coffee/fulfillment",
+        "title": "Fulfillment · Today",
+        "host": "ops.lumen.coffee",
+        "image": "/demo-assets/channels/lumen-ops-dashboard.png"
+      },
+      "direction": "incoming",
+      "atMs": 1791970800248
+    },
+    {
+      "id": "swap",
+      "text": "Can you email those three and offer a swap to Colombia Huila with 10% off?",
+      "direction": "outgoing",
+      "atMs": 1791970805082
+    },
+    {
+      "id": "sent",
+      "text": "Sent ✅ All 3 customers got the swap offer with code SWAP10. I'll post replies here as they come in.",
+      "direction": "incoming",
+      "atMs": 1791970807966
+    },
+    {
+      "id": "accepted",
+      "text": "Jordan P. accepted the swap. LC-20431 is back in the queue and ships today.",
+      "direction": "incoming",
+      "atMs": 1791970813952
+    }
+  ],
+  "events": [
+    {
+      "type": "draft",
+      "atMs": 1791970790500,
+      "value": "Ho"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970790564,
+      "value": "How "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970790628,
+      "value": "How ma"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970790692,
+      "value": "How many"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970790756,
+      "value": "How many o"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970790820,
+      "value": "How many onl"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970790884,
+      "value": "How many onlin"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970790948,
+      "value": "How many online "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791012,
+      "value": "How many online or"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791076,
+      "value": "How many online orde"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791140,
+      "value": "How many online orders"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791204,
+      "value": "How many online orders a"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791268,
+      "value": "How many online orders are"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791332,
+      "value": "How many online orders are s"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791396,
+      "value": "How many online orders are stu"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791460,
+      "value": "How many online orders are stuck"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791524,
+      "value": "How many online orders are stuck i"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791588,
+      "value": "How many online orders are stuck in "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791652,
+      "value": "How many online orders are stuck in fu"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791716,
+      "value": "How many online orders are stuck in fulf"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791780,
+      "value": "How many online orders are stuck in fulfil"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791844,
+      "value": "How many online orders are stuck in fulfillm"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791908,
+      "value": "How many online orders are stuck in fulfillmen"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970791972,
+      "value": "How many online orders are stuck in fulfillment "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970792036,
+      "value": "How many online orders are stuck in fulfillment to"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970792100,
+      "value": "How many online orders are stuck in fulfillment toda"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970792164,
+      "value": "How many online orders are stuck in fulfillment today?"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970792548,
+      "value": ""
+    },
+    {
+      "type": "status",
+      "atMs": 1791970792928,
+      "messageId": "stuck",
+      "status": "delivered"
+    },
+    {
+      "type": "status",
+      "atMs": 1791970792998,
+      "messageId": "stuck",
+      "status": "read"
+    },
+    {
+      "type": "reaction",
+      "atMs": 1791970793248,
+      "messageId": "stuck",
+      "reactionId": "stuck-them",
+      "reaction": {
+        "type": "custom",
+        "byMe": false,
+        "emoji": "👀"
+      }
+    },
+    {
+      "type": "typing",
+      "atMs": 1791970793548,
+      "typing": true
+    },
+    {
+      "type": "typing",
+      "atMs": 1791970796148,
+      "typing": false
+    },
+    {
+      "type": "typing",
+      "atMs": 1791970799148,
+      "typing": true
+    },
+    {
+      "type": "typing",
+      "atMs": 1791970800248,
+      "typing": false
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970802394,
+      "value": "Ca"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970802458,
+      "value": "Can "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970802522,
+      "value": "Can yo"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970802586,
+      "value": "Can you "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970802650,
+      "value": "Can you em"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970802714,
+      "value": "Can you emai"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970802778,
+      "value": "Can you email "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970802842,
+      "value": "Can you email th"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970802906,
+      "value": "Can you email thos"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970802970,
+      "value": "Can you email those "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970803034,
+      "value": "Can you email those th"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970803098,
+      "value": "Can you email those thre"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970803162,
+      "value": "Can you email those three "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970803226,
+      "value": "Can you email those three an"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970803290,
+      "value": "Can you email those three and "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970803354,
+      "value": "Can you email those three and of"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970803418,
+      "value": "Can you email those three and offe"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970803482,
+      "value": "Can you email those three and offer "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970803546,
+      "value": "Can you email those three and offer a "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970803610,
+      "value": "Can you email those three and offer a sw"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970803674,
+      "value": "Can you email those three and offer a swap"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970803738,
+      "value": "Can you email those three and offer a swap t"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970803802,
+      "value": "Can you email those three and offer a swap to "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970803866,
+      "value": "Can you email those three and offer a swap to Co"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970803930,
+      "value": "Can you email those three and offer a swap to Colo"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970803994,
+      "value": "Can you email those three and offer a swap to Colomb"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970804058,
+      "value": "Can you email those three and offer a swap to Colombia"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970804122,
+      "value": "Can you email those three and offer a swap to Colombia H"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970804186,
+      "value": "Can you email those three and offer a swap to Colombia Hui"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970804250,
+      "value": "Can you email those three and offer a swap to Colombia Huila"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970804314,
+      "value": "Can you email those three and offer a swap to Colombia Huila w"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970804378,
+      "value": "Can you email those three and offer a swap to Colombia Huila wit"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970804442,
+      "value": "Can you email those three and offer a swap to Colombia Huila with "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970804506,
+      "value": "Can you email those three and offer a swap to Colombia Huila with 10"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970804570,
+      "value": "Can you email those three and offer a swap to Colombia Huila with 10% "
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970804634,
+      "value": "Can you email those three and offer a swap to Colombia Huila with 10% of"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970804698,
+      "value": "Can you email those three and offer a swap to Colombia Huila with 10% off?"
+    },
+    {
+      "type": "draft",
+      "atMs": 1791970805082,
+      "value": ""
+    },
+    {
+      "type": "status",
+      "atMs": 1791970805462,
+      "messageId": "swap",
+      "status": "delivered"
+    },
+    {
+      "type": "typing",
+      "atMs": 1791970805732,
+      "typing": true
+    },
+    {
+      "type": "status",
+      "atMs": 1791970805732,
+      "messageId": "swap",
+      "status": "read"
+    },
+    {
+      "type": "typing",
+      "atMs": 1791970807966,
+      "typing": false
+    },
+    {
+      "type": "reaction",
+      "atMs": 1791970811052,
+      "messageId": "sent",
+      "reactionId": "sent-me",
+      "reaction": {
+        "type": "custom",
+        "byMe": true,
+        "emoji": "🙌"
+      }
+    },
+    {
+      "type": "typing",
+      "atMs": 1791970812652,
+      "typing": true
+    },
+    {
+      "type": "typing",
+      "atMs": 1791970813952,
+      "typing": false
+    },
+    {
+      "type": "reaction",
+      "atMs": 1791970816802,
+      "messageId": "accepted",
+      "reactionId": "accepted-me",
+      "reaction": {
+        "type": "custom",
+        "byMe": true,
+        "emoji": "🎉"
+      }
+    }
+  ]
+}
