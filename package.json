@@ -12,9 +12,12 @@
     "verify:upstream": "tsx scripts/check-upstream.ts",
     "demo": "tsx src/cli/main.ts",
     "outreach": "tsx --env-file-if-exists=.env.local src/outreach/cli.ts",
-    "x": "tsx --env-file-if-exists=.env.local src/outreach/x/cli.ts"
+    "x": "tsx --env-file-if-exists=.env.local src/outreach/x/cli.ts",
+    "build:api": "node scripts/build-api.mjs",
+    "deploy": "node scripts/build-api.mjs && npx -y vercel@latest deploy --prod --yes"
   },
   "dependencies": {
+    "@vercel/blob": "^2.8.2",
     "clsx": "2.1.1",
     "react": "19.3.0",
     "react-dom": "19.3.0",

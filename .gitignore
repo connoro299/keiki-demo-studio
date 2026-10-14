@@ -10,3 +10,4 @@ blob-report
 .env.local
 .vercel
 .env*
+/api/*.mjs

@@ -20,9 +20,15 @@ const INLINE_KEY = "imessage-demo-inline";
 
 // Outreach review dashboard (/?view=outreach). Lazy so its code and CSS never load on demo routes.
 const OutreachDashboard = lazy(() => import("@/dashboard/OutreachDashboard"));
+const Studio = lazy(() => import("@/studio/Studio").then((mod) => ({ default: mod.Studio })));
+const SharePage = lazy(() => import("@/studio/SharePage").then((mod) => ({ default: mod.SharePage })));
 
 export function App() {
   const params = new URLSearchParams(window.location.search);
+  const shared = params.get("d");
+  const sharedId = params.get("s");
+  if (shared || sharedId) return <Suspense fallback={null}><SharePage token={shared ?? undefined} id={sharedId ?? undefined} /></Suspense>;
+  if (params.get("dev") === "1") return <Home />;
   if (params.get("view") === "outreach") {
     return (
       <Suspense fallback={null}>
@@ -99,7 +105,7 @@ function ManifestRoute() {
   }, []);
 
   if (state === "loading") return null;
-  if (state === "missing") return <Home />;
+  if (state === "missing") return <Suspense fallback={null}><Studio /></Suspense>;
   const requested = new URLSearchParams(window.location.search).get("scenario");
   if (requested && requested !== state.approvedScenarioId && !isCatalogueSceneId(requested)) {
     return <p>Scenario is not approved for this run.</p>;
