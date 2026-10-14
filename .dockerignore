@@ -1,0 +1,9 @@
+node_modules
+outreach
+artifacts
+.claude
+.vercel
+.env.local
+dist
+api/*.mjs
+test-results
