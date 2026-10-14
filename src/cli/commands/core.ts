@@ -20,7 +20,10 @@ export type LoadedDocument = {
   targets: DemoPlatform[];
 };
 
-export function loadAuthoring(args: ParsedArgs, deps: CliDeps): LoadedDocument {
+/** The flags that shape how a flow is loaded and validated. */
+export type AuthoringArgs = Pick<ParsedArgs, "file" | "platform" | "humanRequest" | "sheetExperience">;
+
+export function loadAuthoring(args: AuthoringArgs, deps: CliDeps): LoadedDocument {
   if (!args.file) throw new CliError("Missing demo JSON file", EXIT_USAGE);
   const file = path.resolve(args.file);
   if (!existsSync(file)) throw new CliError(`Demo file not found: ${file}`, EXIT_ENVIRONMENT);
@@ -30,6 +33,16 @@ export function loadAuthoring(args: ParsedArgs, deps: CliDeps): LoadedDocument {
   } catch {
     throw new CliError("Demo file is not valid JSON", EXIT_VALIDATION);
   }
+  return loadAuthoringValue(raw, file, args, deps);
+}
+
+/** Same checks as loadAuthoring for an already-parsed document (`file` labels it in compiled output). */
+export function loadAuthoringValue(
+  raw: unknown,
+  file: string,
+  args: Omit<AuthoringArgs, "file">,
+  deps: CliDeps,
+): LoadedDocument {
   const unsupported = findUnsupported(raw);
   if (unsupported.length > 0) {
     throw new CliError("Unsupported features in demo file", EXIT_VALIDATION, { issues: unsupported });

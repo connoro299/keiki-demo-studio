@@ -1,6 +1,7 @@
 import { generateCommand, planSheetCommand } from "@/cli/commands/generate";
 import { parseArgs } from "@/cli/args";
 import { captureCommand } from "@/cli/commands/capture";
+import { exportCommand } from "@/cli/commands/export";
 import { capabilitiesCommand, compileCommand, validateCommand } from "@/cli/commands/core";
 import { previewCommand } from "@/cli/commands/preview";
 import type { CliDeps } from "@/cli/deps";
@@ -30,6 +31,8 @@ export async function runCli(argv: string[], deps: CliDeps): Promise<number> {
         return await previewCommand(args, deps);
       case "capture":
         return await captureCommand(args, deps);
+      case "export":
+        return await exportCommand(args, deps);
       default:
         writeLine(deps.io, HELP);
         return EXIT_USAGE;

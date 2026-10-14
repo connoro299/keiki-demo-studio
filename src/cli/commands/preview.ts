@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, writeFileSync, rmSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import type { ParsedArgs } from "@/cli/args";
-import { compileDocument, loadAuthoring } from "@/cli/commands/core";
+import { compileDocument, loadAuthoring, type AuthoringArgs, type LoadedDocument } from "@/cli/commands/core";
 import type { CliDeps } from "@/cli/deps";
 import { writeErr, writeJson, writeLine } from "@/cli/deps";
 import { CliError, EXIT_OK, EXIT_USAGE } from "@/cli/errors";
@@ -26,9 +26,9 @@ export async function previewCommand(args: ParsedArgs, deps: CliDeps): Promise<n
 }
 
 export async function bootPlayerHost(
-  args: ParsedArgs,
+  args: AuthoringArgs & Pick<ParsedArgs, "catalogue" | "port">,
   deps: CliDeps,
-  options: { clean: boolean },
+  options: { clean: boolean; loaded?: LoadedDocument },
 ): Promise<PreviewHandle & { manifestPath: string; tempDir: string; manifest: DemoRunManifest }> {
   const start = deps.startPreviewServer ?? startPreviewServer;
   const tempDir = mkdtempSync(path.join(os.tmpdir(), "imessage-demo-"));
@@ -50,7 +50,7 @@ export async function bootPlayerHost(
       platform: "ios",
     };
   } else {
-    const loaded = loadAuthoring(args, deps);
+    const loaded = options.loaded ?? loadAuthoring(args, deps);
     const artifacts = compileDocument(loaded, deps, path.join(tempDir, "compiled"));
     const artifact = artifacts[0];
     if (!artifact) throw new CliError("Compile produced no artifacts", EXIT_USAGE);
