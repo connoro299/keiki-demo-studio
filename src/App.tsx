@@ -117,6 +117,8 @@ function Home() {
         <li><a href="/?foundation=macos">Foundation macOS shell</a></li>
         <li><a href="/?flow=basic-ios-light&t=0">Basic iOS flow</a></li>
         <li><a href="/?flow=basic-macos-dark&t=0">Basic macOS flow</a></li>
+        <li><a href="/?view=outreach">Outreach dashboard (leads + X queue)</a></li>
+        <li><a href="/?flow=channel-whatsapp-light&t=0">WhatsApp demo</a> · <a href="/?flow=channel-telegram-light&t=0">Telegram demo</a> · <a href="/?flow=channel-slack-dark&t=0">Slack demo</a> · <a href="/?flow=basic-ios-light&channel=sms&t=0">SMS demo</a></li>
       </ul>
     </main>
   );
