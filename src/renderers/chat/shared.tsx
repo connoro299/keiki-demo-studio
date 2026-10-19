@@ -309,10 +309,10 @@ function doodleTile(names: Array<keyof typeof GLYPHS>, tile: number, count: numb
 const svgCache = new Map<string, string>();
 
 /** Seamless doodle wallpaper as a data-URI SVG tile (no network). */
-export function doodleWallpaper({ stroke, names, tile = 260, count = 30, seed = 7, strokeWidth = 1.5, fills, sizeScale = 1 }: {
-  stroke: string; names: Array<keyof typeof GLYPHS>; tile?: number; count?: number; seed?: number; strokeWidth?: number; fills?: string; sizeScale?: number;
+export function doodleWallpaper({ stroke, names, tile = 260, count = 30, seed = 7, strokeWidth = 1.5, fills, sizeScale = 1, dots: withDots = true }: {
+  stroke: string; names: Array<keyof typeof GLYPHS>; tile?: number; count?: number; seed?: number; strokeWidth?: number; fills?: string; sizeScale?: number; dots?: boolean;
 }): string {
-  const key = JSON.stringify({ stroke, names, tile, count, seed, strokeWidth, fills, sizeScale });
+  const key = JSON.stringify({ stroke, names, tile, count, seed, strokeWidth, fills, sizeScale, withDots });
   const cached = svgCache.get(key);
   if (cached) return cached;
   const placements = doodleTile(names, tile, count, seed, sizeScale);
@@ -330,7 +330,7 @@ export function doodleWallpaper({ stroke, names, tile = 260, count = 30, seed = 
   }
   let dots = "";
   let state = seed * 31 + 3;
-  for (let index = 0; index < 26; index += 1) {
+  for (let index = 0; withDots && index < 26; index += 1) {
     state = (state * 1103515245 + 12345) % 2147483648;
     const x = (state / 2147483648) * tile;
     state = (state * 1103515245 + 12345) % 2147483648;
@@ -344,4 +344,5 @@ export function doodleWallpaper({ stroke, names, tile = 260, count = 30, seed = 
 }
 
 export const WHATSAPP_GLYPHS: Array<keyof typeof GLYPHS> = ["heart", "star", "bubble", "camera", "note", "cup", "smile", "cloud", "phone", "mail", "balloon", "umbrella", "sun", "bolt", "moon", "clock", "gift", "pizza", "headphones", "icecream", "leaf", "bike", "key", "bell", "flower", "donut"];
-export const TELEGRAM_GLYPHS: Array<keyof typeof GLYPHS> = ["plane", "star", "planet", "cat", "rocket", "heart", "note", "gamepad", "moon", "smile", "flower", "anchor", "icecream", "bolt", "cloud", "gift", "cup", "headphones"];
+/** Telegram-only motifs (paper plane, space, cats, games, sea): none overlap the WhatsApp set, so the two wallpapers never read alike. */
+export const TELEGRAM_GLYPHS: Array<keyof typeof GLYPHS> = ["plane", "planet", "cat", "rocket", "gamepad", "anchor"];

@@ -104,6 +104,7 @@ function copyMessage(message: DemoMessage, messages: readonly DemoMessage[]): De
   }
   if (message.edited !== undefined) copy.edited = message.edited;
   if (message.readAt !== undefined) copy.readAt = message.readAt;
+  if (message.sentAt !== undefined) copy.sentAt = message.sentAt;
   if (message.revealed !== undefined) copy.revealed = message.revealed;
   return copy;
 }

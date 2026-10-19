@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import type { CSSProperties } from "react";
 import { CHAT_MESSAGE_KINDS, durationLabel, hostOf, linkRuns, waveformBars, type ChatMessageView, type ChatModel, type ChatPerson } from "./engine";
 import {
@@ -17,7 +18,8 @@ const palettes = {
   light: {
     base: "#B7CB97",
     gradient: "radial-gradient(120% 70% at 8% 6%, #E2E3BF 0%, rgba(226,227,191,0) 60%), radial-gradient(90% 60% at 96% 28%, #79AE8E 0%, rgba(121,174,142,0) 62%), radial-gradient(100% 65% at 6% 92%, #8DBB86 0%, rgba(141,187,134,0) 60%), radial-gradient(110% 70% at 92% 96%, #D8DB92 0%, rgba(216,219,146,0) 62%)",
-    pattern: "rgba(28,58,20,0.17)",
+    pattern: "rgba(20,48,18,0.5)",
+    patternBlend: "soft-light" as "soft-light" | "normal",
     patternMode: "stroke" as const,
     bar: "#F7F7F7",
     hairline: "rgba(0,0,0,0.2)",
@@ -51,6 +53,7 @@ const palettes = {
     base: "#0E1621",
     gradient: "radial-gradient(120% 70% at 10% 8%, #13202E 0%, rgba(19,32,46,0) 60%), radial-gradient(100% 70% at 92% 92%, #101B27 0%, rgba(16,27,39,0) 60%)",
     pattern: "rgba(122,166,214,0.075)",
+    patternBlend: "normal" as "soft-light" | "normal",
     patternMode: "stroke" as const,
     bar: "#17212B",
     hairline: "rgba(0,0,0,0.5)",
@@ -87,19 +90,28 @@ const HEADER_HEIGHT = 52;
 
 export function TelegramScreen({ model }: { model: ChatModel }) {
   const p = palettes[model.theme];
-  const pattern = doodleWallpaper({ stroke: p.pattern, names: TELEGRAM_GLYPHS, tile: 260, count: 42, seed: 23, strokeWidth: 1.5, sizeScale: 0.82 });
+  // Telegram's default iOS wallpaper: a four-colour pastel gradient under a dense, fine, dark
+  // pattern blended into it (soft-light), with no confetti dots. Distinct from WhatsApp's sparse
+  // tan doodle sheet in density, size, motif set and blending.
+  const pattern = doodleWallpaper({ stroke: p.pattern, names: TELEGRAM_GLYPHS, tile: 200, count: 60, seed: 23, strokeWidth: 1.3, sizeScale: 0.7, dots: false });
   return (
     <div data-skin="telegram" style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", background: p.base, fontFamily: SYSTEM_FONT, color: p.text, WebkitFontSmoothing: "antialiased" }}>
       <div aria-hidden style={{ position: "absolute", inset: 0, backgroundImage: p.gradient }} />
-      <div aria-hidden style={{ position: "absolute", inset: 0, backgroundImage: pattern, backgroundSize: "260px 260px" }} />
+      <div aria-hidden style={{ position: "absolute", inset: 0, backgroundImage: pattern, backgroundSize: "200px 200px", mixBlendMode: p.patternBlend }} />
       <Header model={model} p={p} />
-      <div data-slot="chat-thread" style={{ position: "relative", flex: "1 1 auto", minHeight: 0, overflow: "hidden", display: "flex", flexDirection: "column", justifyContent: "flex-end", paddingTop: STATUS_BAR_HEIGHT + HEADER_HEIGHT, paddingBottom: 6 }}>
-        <ServiceChip p={p} label={model.dayLabel} />
-        {model.messages.map((view) => (
-          <Arrive key={view.id} id={view.id} enter={view.enter} origin={view.side === "out" ? "bottom right" : "bottom left"}>
-            <MessageRow view={view} model={model} p={p} />
-          </Arrive>
-        ))}
+      <div data-slot="chat-thread" style={{ position: "relative", flex: "1 1 auto", minHeight: 0, overflow: "hidden", display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
+        {/* Top-anchored until content overflows, then the outer flex-end keeps the latest message visible (matches WhatsApp/iMessage). */}
+        <div style={{ minHeight: "100%", display: "flex", flexDirection: "column", paddingTop: STATUS_BAR_HEIGHT + HEADER_HEIGHT, paddingBottom: 6, boxSizing: "border-box", flexShrink: 0 }}>
+          <ServiceChip p={p} label={model.dayLabel} />
+          {model.messages.map((view) => (
+            <Fragment key={view.id}>
+              {view.dayLabel ? <ServiceChip p={p} label={view.dayLabel} /> : null}
+              <Arrive key={view.id} id={view.id} enter={view.enter} origin={view.side === "out" ? "bottom right" : "bottom left"}>
+                <MessageRow view={view} model={model} p={p} />
+              </Arrive>
+            </Fragment>
+          ))}
+        </div>
       </div>
       <Composer model={model} p={p} />
       <StatusBar time={model.statusTime} color={p.statusBar} />

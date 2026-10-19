@@ -166,3 +166,35 @@ export function typingDotPhaseMs(index: number, elapsed: number): number {
   const phase = (elapsed - index * typingStaggerMs) % typingLoopMs;
   return phase < 0 ? phase + typingLoopMs : phase;
 }
+
+/**
+ * Pose of one typing dot as a pure function of cue-relative elapsed time, mirroring the
+ * `im-typing-dot` keyframes (0/60/100%: rest at .35 opacity; 30%: peak at 1, -1px, 1.06x;
+ * ease-in-out between). Seek-driven capture/export runs with `reducedMotion: "reduce"`, whose
+ * media rule sets `animation: none`, so pinning the CSS animation's delay alone left every frame
+ * on the static fallback; writing the pose inline renders the same frame regardless of motion
+ * preference and changes the DOM fingerprint per frame so export dedupe cannot hold a stale pose.
+ */
+export function typingDotPose(index: number, elapsed: number): { opacity: number; lift: number; scale: number } {
+  const p = typingDotPhaseMs(index, elapsed) / typingLoopMs;
+  let w = 0;
+  if (p < 0.3) w = p / 0.3;
+  else if (p < 0.6) w = 1 - (p - 0.3) / 0.3;
+  const eased = w * w * (3 - 2 * w);
+  return { opacity: 0.35 + 0.65 * eased, lift: eased, scale: 1 + 0.06 * eased };
+}
+
+/** Pin a typing dot to its pose at `elapsed`, independent of CSS animation or reduced motion. */
+export function pinTypingDot(dot: HTMLElement, index: number, elapsed: number): void {
+  const pose = typingDotPose(index, elapsed);
+  dot.style.animation = "none";
+  dot.style.opacity = pose.opacity.toFixed(3);
+  dot.style.transform = `translateY(${(-pose.lift).toFixed(3)}px) scale(${pose.scale.toFixed(4)})`;
+}
+
+/** Undo `pinTypingDot` so the running CSS loop drives the dot again (live playback). */
+export function unpinTypingDot(dot: HTMLElement): void {
+  if (dot.style.animation === "none") dot.style.animation = "";
+  dot.style.opacity = "";
+  dot.style.transform = "";
+}

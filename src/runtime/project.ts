@@ -148,6 +148,7 @@ function copyMessage(message: SceneMessage, existing: readonly LogicalMessage[])
   }
   if (message.effect === "invisible-ink") logical.revealed = message.revealed ?? false;
   if (message.readAt !== undefined) logical.readAt = message.readAt;
+  if (message.sentAt !== undefined) logical.sentAt = message.sentAt;
   if (message.edited !== undefined) logical.edited = message.edited;
   return logical;
 }
@@ -251,7 +252,7 @@ function finish(compiled: DemoSource, working: Working, timeMs: number): Logical
     durationMs: compiled.durationMs,
     platform: compiled.platform,
     theme: compiled.theme,
-    nowMs: compiled.nowMs,
+    nowMs: storyClock(conversations, compiled.nowMs),
     screen: working.screen,
     windowActive: working.windowActive,
     selectedConversationId: selected?.id ?? working.selectedConversationId,
@@ -774,4 +775,23 @@ function cueHolds(state: LogicalState, cue: Cue): boolean {
   if (cue.kind !== "send" && cue.kind !== "receive" && cue.kind !== "bubble-effect" && cue.kind !== "reaction") return true;
   if (!cue.subjectId) return false;
   return state.conversations.some((conversation) => conversation.messages.some((message) => message.id === cue.subjectId));
+}
+
+/**
+ * The device clock at this point of the story. A flow that authors `sentAt` wall-clock times advances
+ * the status bar to the newest arrived message's display time (its `sentAt`, else its absolute `atMs`)
+ * once it passes the flow's `nowMs` (the opening clock), so the clock moves with the story and never
+ * reads earlier than the latest visible timestamp. Flows without any `sentAt` keep their fixed `nowMs`.
+ */
+function storyClock(conversations: ConversationState[], nowMs: number): number {
+  const dated = conversations.some((conversation) => conversation.messages.some((message) => message.sentAt !== undefined));
+  if (!dated) return nowMs;
+  let latest = nowMs;
+  for (const conversation of conversations) {
+    for (const message of conversation.messages) {
+      const shown = message.sentAt ?? (message.atMs > 1e11 ? message.atMs : undefined);
+      if (shown !== undefined && shown > latest) latest = shown;
+    }
+  }
+  return latest;
 }

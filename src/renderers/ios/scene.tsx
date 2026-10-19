@@ -1,4 +1,5 @@
 import { forwardRef, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState, type ReactNode, type Ref } from "react";
+import { storyLabelClock, visibleClock } from "../../runtime/story-clock";
 import type { CompiledDemo, RenderFrame, RendererHandle, RendererProps } from "@/contracts";
 import { tapbackLandingAt } from "@/contracts/tapback-motion";
 import { useBubbleEffectOnMessage } from "@/components/imessage/message-effects";
@@ -11,18 +12,19 @@ import { frameAt } from "@/runtime";
 import type { VisualFrame } from "@/runtime";
 import { toUpstreamMessage } from "./adapt";
 import { statusClock } from "./clock";
-import { cueToken, deriveCues, typingFreezeDelay, type CueState } from "./cues";
+import { cueToken, deriveCues, pinTypingDot, typingFreezeDelay, unpinTypingDot, type CueState } from "./cues";
 import { effectsPickerShellProps, screenEffectOverlayProps } from "./effects";
 import { ImageViewerFromMedia, imageViewerFromFrame } from "./media";
 import { screenTransitionShellProps } from "./navigation";
 import { frameKey, projectFrame } from "./project";
 import { settleIosScene, type IosSettleReceipt } from "./readiness";
-import { applyCheckpointScroll } from "./scroll";
+import { applyCheckpointScroll, arrivalFollowLift, TYPING_ARRIVAL } from "./scroll";
 import { controlledLongPressPose, iosInteractionShell, type InteractionInput } from "./interaction-state";
 import { iosInteractionView, undoSendOverlay, type OverlayRenderOptions } from "./overlays";
 import { AppCardLayer } from "./app-card/AppCardLayer";
 import { PollLayer } from "./poll/PollLayer";
 import { renderOwnedContent } from "./owned-content";
+import { composerPlaceholder } from "@/renderers/sms-composer";
 
 export type { IosSettleReceipt };
 
@@ -66,10 +68,29 @@ function conversationsFor(compiled: CompiledDemo, frame: VisualFrame): IosConver
       name: conversation.contact.name,
       initials: conversation.contact.initials,
       preview: latest?.text || conversation.draft || conversation.contact.name,
-      time: statusClock(frame.nowMs),
+      time: statusClock(visibleClock(frame.nowMs, frame.messages)),
       ...(people && people.length > 1 ? { members: people.map((person) => ({ name: person.name, initials: person.initials, src: person.photo })) } : {}),
     };
   });
+}
+
+/** The newest message arrival at `timeMs`, and whether it took over from the typing balloon. */
+function latestArrival(compiled: CompiledDemo, timeMs: number): { id: string; elapsedMs: number; replacesTyping: boolean } | null {
+  let latest: { id: string; atMs: number } | null = null;
+  for (const event of compiled.events) {
+    if (event.type !== "message" || event.atMs > timeMs) continue;
+    if (!latest || event.atMs >= latest.atMs) latest = { id: event.message.id, atMs: event.atMs };
+  }
+  // The typing balloon appearing grows the log just like a message does.
+  for (const event of compiled.events) {
+    if (event.type !== "typing" || !event.typing || event.atMs > timeMs) continue;
+    if (!latest || event.atMs > latest.atMs) latest = { id: TYPING_ARRIVAL, atMs: event.atMs };
+  }
+  if (!latest) return null;
+  if (latest.id === TYPING_ARRIVAL) return { id: latest.id, elapsedMs: timeMs - latest.atMs, replacesTyping: false };
+  const at = latest.atMs;
+  const replacesTyping = compiled.events.some((event) => event.type === "typing" && !event.typing && Math.abs(event.atMs - at) < 1 && event.atMs > 0);
+  return { id: latest.id, elapsedMs: timeMs - at, replacesTyping };
 }
 
 function demoIsPlaying(): boolean {
@@ -85,24 +106,19 @@ function freezeLoops(root: ParentNode, cues: CueState) {
       const previous = Number(dot.dataset.typingElapsed);
       const jumped = !Number.isFinite(previous) || elapsed + 32 < previous || elapsed - previous > 80;
       dot.dataset.typingElapsed = String(elapsed);
-      if (playing && !jumped && dot.style.animationPlayState === "running" && dot.dataset.typingDelay) {
+      if (!playing) {
+        pinTypingDot(dot, index, elapsed);
+        return;
+      }
+      unpinTypingDot(dot);
+      if (!jumped && dot.style.animationPlayState === "running" && dot.dataset.typingDelay) {
         if (dot.style.animationDelay !== dot.dataset.typingDelay) dot.style.animationDelay = dot.dataset.typingDelay;
         return;
       }
       const delay = typingFreezeDelay(index, elapsed);
       dot.dataset.typingDelay = delay;
       dot.style.animationDelay = delay;
-      dot.style.animationPlayState = playing ? "running" : "paused";
-      if (!playing) {
-        for (const animation of dot.getAnimations()) {
-          animation.pause();
-          try {
-            animation.currentTime = 0;
-          } catch {
-            // The effect timing is not ready on the first layout.
-          }
-        }
-      }
+      dot.style.animationPlayState = "running";
     });
   }
   for (const ink of cues.inkElapsed) {
@@ -169,7 +185,8 @@ export const IosFrame = forwardRef<RendererHandle, IosFrameProps>(function IosFr
   useLayoutEffect(() => {
     const shellNode = frameRef.current;
     if (shellNode) {
-      applyCheckpointScroll(shellNode, visual.scroll);
+      const base = Number.isFinite(visual.scroll) ? Math.max(0, visual.scroll ?? 0) : 0;
+      applyCheckpointScroll(shellNode, base + arrivalFollowLift(shellNode, latestArrival(compiled, visual.timeMs)));
       freezeLoops(shellNode, session.current.cues);
     }
     if (poseKey !== committedKey) setPoseKey(committedKey);
@@ -290,7 +307,7 @@ function shellProps(
   return {
     width: iosScreen.width,
     height: iosScreen.height,
-    time: statusClock(frame.nowMs),
+    time: statusClock(visibleClock(frame.nowMs, frame.messages)),
     screen: frame.screen,
     screenTransition: transition ?? { from: frame.screen, progress: 1 },
     conversations: conversationsFor(compiled, frame),
@@ -299,9 +316,10 @@ function shellProps(
     participants: compiled.participants?.map((person) => ({ name: person.name, initials: person.initials, src: person.photo })),
     messages: frame.messages.map(toUpstreamMessage),
     typing: frame.typing,
-    now: frame.nowMs,
+    now: Math.max(frame.nowMs, storyLabelClock(compiled)),
     composer: {
       value: frame.draft,
+      placeholder: composerPlaceholder(compiled.channel),
       onChange: interactive && onDraft ? onDraft : () => {},
     },
     sendAnimation: posed && cues.send ? cues.send : null,

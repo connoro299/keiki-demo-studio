@@ -1,3 +1,4 @@
+import { visibleClock } from "../../runtime/story-clock";
 import type { DemoTheme, RenderFrame } from "@/contracts";
 import { prefersReducedMotion } from "@/components/imessage/message-motion";
 import { iosScreen } from "@/components/imessage/ios-messages-app";
@@ -112,7 +113,7 @@ function structureProblem(shell: HTMLElement, frame: RenderFrame): string | null
   if (shell.offsetWidth !== iosScreen.width || shell.offsetHeight !== iosScreen.height) return "missing node: frame size";
   if (!shell.querySelector('[data-slot="ios-status-bar"]')) return "missing node: ios-status-bar";
   const clock = shell.querySelector('[data-slot="time"]');
-  if (!clock || clock.textContent !== statusClock(frame.nowMs)) return "missing node: status clock";
+  if (!clock || clock.textContent !== statusClock(visibleClock(frame.nowMs, frame.messages))) return "missing node: status clock";
   if (frame.screen === "list" || frame.screen === "new-message") {
     if (!shell.querySelector('[data-slot="ios-conversation-list"]')) return "missing node: ios-conversation-list";
   }
