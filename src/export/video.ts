@@ -206,6 +206,11 @@ async function frameShooter(page: Page, session: CaptureSession, clip: { x: numb
     mobile: false,
   });
   return async () => {
+    // Page.captureScreenshot does not wait for the seek's DOM change to reach the compositor: with
+    // several pages seeking at once, a shot could land on a half-rasterised frame (layers with
+    // backdrop-filter, like the iOS composer glass, came out as blank white boxes). Wait for two
+    // animation frames so the seeked state has been painted and committed before reading pixels.
+    await page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
     const { data } = await cdp.send("Page.captureScreenshot", {
       format: "png",
       clip: { ...clip, scale: 1 },

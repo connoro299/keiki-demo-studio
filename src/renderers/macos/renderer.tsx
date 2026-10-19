@@ -4,12 +4,13 @@ import { MacMessagesApp, macScreen } from "@/components/imessage/macos-messages-
 import { ReplyThread } from "@/components/imessage/message-reply";
 import { ScreenEffect } from "@/components/imessage/screen-effects";
 import { useBubbleEffectOnMessage } from "@/components/imessage/message-effects";
-import { typingFreezeDelay } from "@/renderers/ios/cues";
+import { pinTypingDot } from "@/renderers/ios/cues";
 import { arrivalFor, mapDemoMessage, playbackArrival, resolveMacScene, toSidebarConversation, type ResolvedConversation } from "@/renderers/macos/map-message";
 import { macSourceLimitations, rejectMacFrame } from "@/renderers/macos/limits";
 import { waitForMacReady } from "@/renderers/macos/readiness";
 import { initialSwitchPhase, isSwitchAligned, nextSwitchPhase, type SwitchPhase } from "@/renderers/macos/switch-phase";
 import type { MacDemoRendererProps, MacRendererHandle } from "@/renderers/macos/types";
+import { composerPlaceholder } from "@/renderers/sms-composer";
 
 function messagesFor(conversation: ResolvedConversation): Message[] {
   return conversation.messages.map(mapDemoMessage);
@@ -52,10 +53,17 @@ export const MacDemoRenderer = forwardRef<MacRendererHandle, MacDemoRendererProp
     if (!root || !frame.typing) return;
     root.querySelectorAll<HTMLElement>('[data-slot="typing-indicator"] > span[data-dot]').forEach((dot) => {
       const index = Number(dot.dataset.dot ?? 0);
-      dot.style.animationDelay = typingFreezeDelay(index, Math.max(0, frame.timeMs));
-      dot.style.animationPlayState = "paused";
+      pinTypingDot(dot, index, Math.max(0, frame.timeMs));
     });
   }, [frame.typing, frame.timeMs, model.checkpoint]);
+
+  // The pinned MacMessagesApp does not forward a composer placeholder, so an SMS thread relabels the
+  // unfocused field itself (React leaves the attribute alone until the composer's own value changes).
+  const placeholder = composerPlaceholder(compiled.channel);
+  useLayoutEffect(() => {
+    const field = windowRef.current?.querySelector<HTMLTextAreaElement>('[data-slot="mac-composer"] textarea');
+    if (placeholder && field && field.placeholder === "iMessage") field.placeholder = placeholder;
+  });
 
   const aligned = isSwitchAligned(phase, model.checkpoint, Boolean(model.switchFrom));
   const presentingFrom = Boolean(model.switchFrom) && !aligned;

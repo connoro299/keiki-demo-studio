@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import type { CSSProperties, ReactNode } from "react";
 import { CHAT_MESSAGE_KINDS, durationLabel, hostOf, linkRuns, waveformBars, type ChatMessageView, type ChatModel, type ChatPerson } from "./engine";
 import {
@@ -106,9 +107,12 @@ export function WhatsAppScreen({ model }: { model: ChatModel }) {
           <Notice p={p} />
           <DayChip p={p} label={model.dayLabel} />
           {model.messages.map((view) => (
-            <Arrive key={view.id} id={view.id} enter={view.enter} origin={view.side === "out" ? "bottom right" : "bottom left"}>
-              <MessageRow view={view} model={model} p={p} />
-            </Arrive>
+            <Fragment key={view.id}>
+              {view.dayLabel ? <DayChip p={p} label={view.dayLabel} /> : null}
+              <Arrive key={view.id} id={view.id} enter={view.enter} origin={view.side === "out" ? "bottom right" : "bottom left"}>
+                <MessageRow view={view} model={model} p={p} />
+              </Arrive>
+            </Fragment>
           ))}
           {model.typing.visible ? (
             <Arrive id="typing" enter={model.typing.enter}>

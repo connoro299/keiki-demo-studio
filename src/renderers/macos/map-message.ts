@@ -15,7 +15,7 @@ export function mapDemoMessage(message: DemoMessage): Message {
     id: message.id,
     text: message.text,
     direction: message.direction,
-    sentAt: message.atMs,
+    sentAt: message.sentAt ?? message.atMs,
     // Validation keeps app cards off macOS; the pinned MessageKind has no such row.
     kind:
       message.kind === "text" ||

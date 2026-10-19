@@ -13,3 +13,9 @@ body,
 body {
   background: #d8d8dc;
 }
+
+/* SMS threads: current iOS Messages draws the composer's send arrow green, not iMessage blue.
+   The pinned composer hard-codes the blue fill, so the renderer overrides it for the sms channel only. */
+[data-channel="sms"] [data-slot="ios-composer"] [data-slot="send"] {
+  background-color: #34c759;
+}

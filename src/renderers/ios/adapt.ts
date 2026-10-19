@@ -17,12 +17,12 @@ export function toUpstreamMessage(message: AdaptableMessage): Message {
   if (message.kind === "app-card") {
     // The pinned list has no live-card row. It lays out a plain row for the card's place in its
     // cluster; `AppCardLayer` hides that row's contents and docks the checkout iframe in it.
-    return { id: message.id, text: message.text, direction: message.direction, sentAt: message.atMs };
+    return { id: message.id, text: message.text, direction: message.direction, sentAt: message.sentAt ?? message.atMs };
   }
   if (message.kind === "poll") {
     // The pinned list has no poll row. Keep the real message id and dock the renderer-owned poll
     // into this row. The placeholder bubble is hidden by PollLayer.
-    const row: Message = { id: message.id, text: "", direction: message.direction, sentAt: message.atMs };
+    const row: Message = { id: message.id, text: "", direction: message.direction, sentAt: message.sentAt ?? message.atMs };
     if (message.sender) row.sender = message.sender;
     if (message.senderInitials) row.senderInitials = message.senderInitials;
     if (message.senderPhoto) row.senderPhoto = message.senderPhoto;
@@ -33,7 +33,7 @@ export function toUpstreamMessage(message: AdaptableMessage): Message {
     id: message.id,
     text: message.text,
     direction: message.direction,
-    sentAt: message.atMs,
+    sentAt: message.sentAt ?? message.atMs,
   };
   if (message.sender) upstream.sender = message.sender;
   if (message.senderInitials) upstream.senderInitials = message.senderInitials;

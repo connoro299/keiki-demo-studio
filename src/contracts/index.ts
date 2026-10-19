@@ -218,6 +218,12 @@ export const demoMessageSchema = z.object({
   replyTo: z.union([z.string().min(1), replySnapshotSchema]).optional(),
   edited: z.boolean().optional(),
   readAt: z.number().int().nonnegative().optional(),
+  /**
+   * Optional wall-clock time the transcript shows for this message (epoch ms). Decouples the story's
+   * clock from playback: date separators, bubble times and the status-bar clock read `sentAt`, while
+   * `atMs` still decides when the message plays. Omitted, the message shows its `atMs`.
+   */
+  sentAt: z.number().int().nonnegative().optional(),
   revealed: z.boolean().optional(),
   removed: z.boolean().optional(),
 });
@@ -518,6 +524,7 @@ export type DemoMessage = {
   replyTo?: ReplySnapshot;
   edited?: boolean;
   readAt?: number;
+  sentAt?: number;
   revealed?: boolean;
   removed?: boolean;
   sender?: string;

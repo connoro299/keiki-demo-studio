@@ -1,4 +1,5 @@
 import type { CompiledDemo, DemoChannel, DemoMessage, DemoParticipant, MessageStatus, RenderFrame } from "@/contracts";
+import { storyLabelClock, visibleClock } from "../../runtime/story-clock";
 
 /**
  * Shared, pure model for the repository-owned chat renderers (WhatsApp, Telegram, Slack).
@@ -166,6 +167,8 @@ export type ChatMessageView = {
   reactions: ChatReactionView[];
   /** Display clock text, e.g. "9:41 AM". */
   time: string;
+  /** Day divider drawn above this message when its display day differs from the previous message's. */
+  dayLabel?: string;
   emojiOnly: boolean;
   /** Voice-note playback position 0..1 when an audio-control event targets this message. */
   audioProgress?: number;
@@ -185,7 +188,7 @@ export type ChatModel = {
   messages: ChatMessageView[];
   typing: { visible: boolean; enter: number; elapsed: number; who: ChatPerson };
   draft: { text: string; caret: boolean };
-  /** First message's display day label (always "Today" for demos). */
+  /** First message's display day label ("Today" unless messages author an earlier `sentAt`). */
   dayLabel: string;
 };
 
@@ -293,7 +296,7 @@ export function buildChatModel(compiled: CompiledDemo, frame: RenderFrame, chann
         enter: progressSince(timeline.reactions.get(id), t, chatMotion.reaction),
       };
     });
-    const display = message.atMs > 1e11 ? message.atMs : compiled.nowMs;
+    const display = message.sentAt ?? (message.atMs > 1e11 ? message.atMs : compiled.nowMs);
     const view: ChatMessageView = {
       message,
       id: message.id,
@@ -326,6 +329,17 @@ export function buildChatModel(compiled: CompiledDemo, frame: RenderFrame, chann
     current.lastOfGroup = !joins(current, next);
   }
 
+  // Day dividers: the first day goes in the thread's top chip; later days get their own divider.
+  // Only flows that author `sentAt` get dated dividers; others keep the single "Today" chip.
+  let firstDay = "Today";
+  const labelNow = Math.max(frame.nowMs, storyLabelClock(compiled));
+  const dated = views.some((view) => view.message.sentAt !== undefined);
+  for (let index = 0; dated && index < views.length; index += 1) {
+    const day = utcDay(displayMs(views[index], compiled));
+    if (index === 0) firstDay = dayLabelFor(displayMs(views[index], compiled), labelNow);
+    else if (day !== utcDay(displayMs(views[index - 1], compiled))) views[index].dayLabel = dayLabelFor(displayMs(views[index], compiled), labelNow);
+  }
+
   const typingStart = lastAtOrBefore(timeline.typingOn, t) ?? 0;
   const lastIncoming = [...views].reverse().find((view) => view.side === "in");
   const typingWho = lastIncoming?.sender ?? contactPerson;
@@ -337,7 +351,7 @@ export function buildChatModel(compiled: CompiledDemo, frame: RenderFrame, chann
     channel,
     theme: frame.theme,
     timeMs: t,
-    statusTime: clockLabel(frame.nowMs, false),
+    statusTime: clockLabel(visibleClock(frame.nowMs, views.map((view) => view.message)), false),
     contact: contactPerson,
     me,
     group,
@@ -351,12 +365,30 @@ export function buildChatModel(compiled: CompiledDemo, frame: RenderFrame, chann
       who: typingWho,
     },
     draft: { text: frame.draft, caret },
-    dayLabel: "Today",
+    dayLabel: views.length ? firstDay : "Today",
   };
 }
 
+const DAY_MS = 86_400_000;
+const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+function utcDay(ms: number): number {
+  return Math.floor(ms / DAY_MS);
+}
+
+/** Chat-app day divider text relative to the device clock (UTC, like the clocks): Today, Yesterday, a weekday within the week, else "Mon, Oct 6". */
+export function dayLabelFor(ms: number, nowMs: number): string {
+  const days = utcDay(nowMs) - utcDay(ms);
+  if (days <= 0) return "Today";
+  if (days === 1) return "Yesterday";
+  const date = new Date(ms);
+  if (days < 7) return WEEKDAYS[date.getUTCDay()];
+  return `${WEEKDAYS[date.getUTCDay()].slice(0, 3)}, ${MONTHS[date.getUTCMonth()]} ${date.getUTCDate()}`;
+}
+
 function displayMs(view: ChatMessageView, compiled: CompiledDemo): number {
-  return view.message.atMs > 1e11 ? view.message.atMs : compiled.nowMs + view.arrivalMs;
+  return view.message.sentAt ?? (view.message.atMs > 1e11 ? view.message.atMs : compiled.nowMs + view.arrivalMs);
 }
 
 /**

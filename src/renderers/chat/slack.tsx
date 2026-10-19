@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import type { CSSProperties } from "react";
 import { CHAT_MESSAGE_KINDS, durationLabel, hostOf, linkRuns, waveformBars, type ChatMessageView, type ChatModel, type ChatPerson } from "./engine";
 import { Arrive, Avatar, ChatVideo, DISPLAY_FONT, HOME_AREA_HEIGHT, HomeIndicator, STATUS_BAR_HEIGHT, SYSTEM_FONT, StatusBar, imageBox } from "./shared";
@@ -82,9 +83,12 @@ export function SlackScreen({ model }: { model: ChatModel }) {
           <Intro model={model} p={p} />
           <DayDivider p={p} label={model.dayLabel} />
           {model.messages.map((view) => (
-            <Arrive key={view.id} id={view.id} enter={view.enter} rise={8} scale={1} origin="top left">
-              <MessageRow view={view} model={model} p={p} />
-            </Arrive>
+            <Fragment key={view.id}>
+              {view.dayLabel ? <DayDivider p={p} label={view.dayLabel} /> : null}
+              <Arrive key={view.id} id={view.id} enter={view.enter} rise={8} scale={1} origin="top left">
+                <MessageRow view={view} model={model} p={p} />
+              </Arrive>
+            </Fragment>
           ))}
           <div style={{ flex: "1 1 auto" }} />
         </div>

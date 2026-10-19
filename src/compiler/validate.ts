@@ -164,6 +164,7 @@ type MessageMeta = {
   readAt?: "valid" | "invalid";
   readAtValue?: number;
   sentAt?: "valid" | "invalid";
+  sentAtValue?: number;
   kindBlocked: boolean;
   reactionItems: ParsedReaction[];
   imageCount: number;
@@ -265,10 +266,8 @@ function validateFlow(input: Record<string, unknown>): { issues: ValidationIssue
   const contact = readContact(input.contact, Object.hasOwn(input, "contact"), issues);
   const nowMs = readMillis(input, "nowMs", pointer(["nowMs"]), issues, true);
   const startAtMs = readMillis(input, "startAtMs", pointer(["startAtMs"]), issues, false);
-  const firstAt = firstMessageAt(input.messages);
-  if (startAtMs !== undefined && firstAt !== undefined && startAtMs > firstAt) {
-    issues.push(issue("/startAtMs", "INVALID_TIMESTAMP", "startAtMs cannot be after the first message"));
-  }
+  // Messages authored before startAtMs are thread history: already present and settled when
+  // playback opens (no arrival motion). Timeline events still cannot precede startAtMs.
   const draft = readDraft(input, issues);
   const typing = readBoolean(input, "typing", pointer(["typing"]), issues, true);
   const screen = readEnum(input, "screen", pointer(["screen"]), issues, SCREENS);
@@ -610,6 +609,7 @@ function readMessage(
     readAt: readAt === "absent" ? undefined : readAt === "invalid" ? "invalid" : "valid",
     readAtValue: typeof readAt === "number" ? readAt : undefined,
     sentAt: sentAt === "absent" ? undefined : sentAt === "invalid" ? "invalid" : "valid",
+    sentAtValue: typeof sentAt === "number" ? sentAt : undefined,
     kindBlocked,
     reactionItems: reactions.items,
     imageCount: Array.isArray(images) ? images.length : 0,
@@ -849,8 +849,8 @@ function semanticPass(messages: ReadMessage[], flowId: string | undefined, issue
     if (message.readAtValue !== undefined && message.normalized) {
       message.normalized.readAt = message.readAtValue;
     }
-    if (message.sentAt === "valid") {
-      issues.push(issue(`${base}/sentAt`, "CONTRACT_GAP", `sentAt is not representable on the frozen DemoMessage${idNote}`));
+    if (message.sentAtValue !== undefined && message.normalized) {
+      message.normalized.sentAt = message.sentAtValue;
     }
 
     if (
